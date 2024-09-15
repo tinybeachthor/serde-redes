@@ -1,0 +1,10 @@
+[workspace]
+members = [
+  "serde-ast",
+]
+resolver = "2"
+
+[workspace.dependencies]
+serde = "1"
+thiserror = "1"
+
