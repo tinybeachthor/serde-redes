@@ -45,6 +45,23 @@ pub enum Op {
         ops: Vec<SeqOp>,
     },
 
+    Tuple {
+        len: usize,
+        ops: Vec<TupleOp>,
+    },
+    TupleStruct {
+        name: String,
+        len: usize,
+        ops: Vec<TupleStructOp>,
+    },
+    TupleVariant {
+        name: String,
+        variant_index: u32,
+        variant: String,
+        len: usize,
+        ops: Vec<TupleVariantOp>,
+    },
+
     Map {
         len: Option<usize>,
         ops: Vec<MapOp>,
@@ -60,6 +77,21 @@ pub enum Op {
         variant: String,
         len: usize,
         ops: Vec<StructVariantOp>,
+    },
+}
+pub enum TupleOp {
+    Element {
+        value: Vec<Op>,
+    },
+}
+pub enum TupleStructOp {
+    Field {
+        value: Vec<Op>,
+    },
+}
+pub enum TupleVariantOp {
+    Field {
+        value: Vec<Op>,
     },
 }
 pub enum SeqOp {

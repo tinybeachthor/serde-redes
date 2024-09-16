@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{to_ast, MapOp, Op, SeqOp, StructOp, StructVariantOp};
+use crate::{to_ast, MapOp, Op, SeqOp, StructOp, StructVariantOp, TupleOp, TupleStructOp, TupleVariantOp};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -174,14 +174,21 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
-        todo!()
+        Ok(SerializeTuple::new(
+            self,
+            len,
+        ))
     }
     fn serialize_tuple_struct(
         self,
         name: &'static str,
         len: usize,
     ) -> Result<Self::SerializeTupleStruct, Self::Error> {
-        todo!()
+        Ok(SerializeTupleStruct::new(
+            self,
+            name.to_owned(),
+            len,
+        ))
     }
     fn serialize_tuple_variant(
         self,
@@ -190,7 +197,13 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        todo!()
+        Ok(SerializeTupleVariant::new(
+            self,
+            name.to_owned(),
+            variant_index,
+            variant.to_owned(),
+            len,
+        ))
     }
 
     fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
@@ -227,6 +240,162 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
         ))
     }
 }
+pub struct SerializeTuple<'ops> {
+    s: Serializer::<'ops>,
+    len: usize,
+    inner_ops: Vec<TupleOp>,
+}
+impl<'ops> SerializeTuple<'ops> {
+    pub fn new(
+        s: Serializer::<'ops>,
+        len: usize,
+    ) -> Self {
+        Self {
+            s,
+            len,
+            inner_ops: Vec::new(),
+        }
+    }
+}
+impl<'ops> serde::ser::SerializeTuple for SerializeTuple<'ops> {
+    type Ok = ();
+    type Error = Error;
+
+    fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
+    where
+        T: ?Sized + serde::Serialize
+    {
+        self.inner_ops.push(TupleOp::Element {
+            value: to_ast(value)?,
+        });
+        Ok(())
+    }
+
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        let Self {
+            s,
+            len,
+            inner_ops,
+         } = self;
+
+        s.ops.push(Op::Tuple {
+            len,
+            ops: inner_ops,
+        });
+        Ok(())
+    }
+}
+pub struct SerializeTupleStruct<'ops> {
+    s: Serializer::<'ops>,
+    name: String,
+    len: usize,
+    inner_ops: Vec<TupleStructOp>,
+}
+impl<'ops> SerializeTupleStruct<'ops> {
+    pub fn new(
+        s: Serializer::<'ops>,
+        name: String,
+        len: usize,
+    ) -> Self {
+        Self {
+            s,
+            name,
+            len,
+            inner_ops: Vec::new(),
+        }
+    }
+}
+impl<'ops> serde::ser::SerializeTupleStruct for SerializeTupleStruct<'ops> {
+    type Ok = ();
+    type Error = Error;
+
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        let Self {
+            s,
+            name,
+            len,
+            inner_ops,
+         } = self;
+
+        s.ops.push(Op::TupleStruct {
+            name,
+            len,
+            ops: inner_ops,
+        });
+        Ok(())
+    }
+
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
+    where
+        T: ?Sized + serde::Serialize
+    {
+        self.inner_ops.push(TupleStructOp::Field {
+            value: to_ast(value)?,
+        });
+        Ok(())
+    }
+}
+pub struct SerializeTupleVariant<'ops> {
+    s: Serializer::<'ops>,
+    name: String,
+    variant_index: u32,
+    variant: String,
+    len: usize,
+    inner_ops: Vec<TupleVariantOp>,
+}
+impl<'ops> SerializeTupleVariant<'ops> {
+    pub fn new(
+        s: Serializer::<'ops>,
+        name: String,
+        variant_index: u32,
+        variant: String,
+        len: usize,
+    ) -> Self {
+        Self {
+            s,
+            name,
+            variant_index,
+            variant,
+            len,
+            inner_ops: Vec::new(),
+        }
+    }
+}
+impl<'ops> serde::ser::SerializeTupleVariant for SerializeTupleVariant<'ops> {
+    type Ok = ();
+    type Error = Error;
+
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        let Self {
+            s,
+            name,
+            variant_index,
+            variant,
+            len,
+            inner_ops,
+         } = self;
+
+        s.ops.push(Op::TupleVariant {
+            name,
+            variant_index,
+            variant,
+            len,
+            ops: inner_ops,
+        });
+        Ok(())
+    }
+
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
+    where
+        T: ?Sized + serde::Serialize
+    {
+        self.inner_ops.push(TupleVariantOp::Field {
+            value: to_ast(value)?,
+        });
+        Ok(())
+    }
+}
+
 pub struct SerializeSeq<'ops> {
     s: Serializer::<'ops>,
     len: Option<usize>,
