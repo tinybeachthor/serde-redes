@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{to_ast, MapOp, Op, StructOp, StructVariantOp};
+use crate::{to_ast, MapOp, Op, SeqOp, StructOp, StructVariantOp};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -167,13 +167,15 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
     }
 
     fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        todo!()
+        Ok(SerializeSeq::new(
+            self,
+            len,
+        ))
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
         todo!()
     }
-
     fn serialize_tuple_struct(
         self,
         name: &'static str,
@@ -181,7 +183,6 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
     ) -> Result<Self::SerializeTupleStruct, Self::Error> {
         todo!()
     }
-
     fn serialize_tuple_variant(
         self,
         name: &'static str,
@@ -224,6 +225,51 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
             variant,
             len,
         ))
+    }
+}
+pub struct SerializeSeq<'ops> {
+    s: Serializer::<'ops>,
+    len: Option<usize>,
+    inner_ops: Vec<SeqOp>,
+}
+impl<'ops> SerializeSeq<'ops> {
+    pub fn new(
+        s: Serializer::<'ops>,
+        len: Option<usize>,
+    ) -> Self {
+        Self {
+            s,
+            len,
+            inner_ops: Vec::new(),
+        }
+    }
+}
+impl<'ops> serde::ser::SerializeSeq for SerializeSeq<'ops> {
+    type Ok = ();
+    type Error = Error;
+
+    fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
+    where
+        T: ?Sized + serde::Serialize
+    {
+        self.inner_ops.push(SeqOp::Element {
+            value: to_ast(value)?,
+        });
+        Ok(())
+    }
+
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        let Self {
+            s,
+            len,
+            inner_ops,
+         } = self;
+
+        s.ops.push(Op::Seq {
+            len,
+            ops: inner_ops,
+        });
+        Ok(())
     }
 }
 

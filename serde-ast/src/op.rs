@@ -40,6 +40,11 @@ pub enum Op {
         value: Vec<Op>,
     },
 
+    Seq {
+        len: Option<usize>,
+        ops: Vec<SeqOp>,
+    },
+
     Map {
         len: Option<usize>,
         ops: Vec<MapOp>,
@@ -55,6 +60,11 @@ pub enum Op {
         variant: String,
         len: usize,
         ops: Vec<StructVariantOp>,
+    },
+}
+pub enum SeqOp {
+    Element {
+        value: Vec<Op>,
     },
 }
 pub enum MapOp {
