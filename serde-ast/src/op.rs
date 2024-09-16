@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, PartialEq)]
 pub enum Op {
     Bool(bool),
 
@@ -79,26 +80,31 @@ pub enum Op {
         ops: Vec<StructVariantOp>,
     },
 }
+#[derive(Debug, Clone, PartialEq)]
 pub enum TupleOp {
     Element {
         value: Vec<Op>,
     },
 }
+#[derive(Debug, Clone, PartialEq)]
 pub enum TupleStructOp {
     Field {
         value: Vec<Op>,
     },
 }
+#[derive(Debug, Clone, PartialEq)]
 pub enum TupleVariantOp {
     Field {
         value: Vec<Op>,
     },
 }
+#[derive(Debug, Clone, PartialEq)]
 pub enum SeqOp {
     Element {
         value: Vec<Op>,
     },
 }
+#[derive(Debug, Clone, PartialEq)]
 pub enum MapOp {
     Key {
         key: Vec<Op>,
@@ -107,6 +113,7 @@ pub enum MapOp {
         value: Vec<Op>,
     },
 }
+#[derive(Debug, Clone, PartialEq)]
 pub enum StructOp {
     Field {
         key: String,
@@ -116,6 +123,7 @@ pub enum StructOp {
         key: String,
     }
 }
+#[derive(Debug, Clone, PartialEq)]
 pub enum StructVariantOp {
     Field {
         key: String,
