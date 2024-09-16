@@ -40,6 +40,10 @@ pub enum Op {
         value: Vec<Op>,
     },
 
+    Map {
+        len: Option<usize>,
+        ops: Vec<MapOp>,
+    },
     Struct {
         name: String,
         len: usize,
@@ -51,6 +55,14 @@ pub enum Op {
         variant: String,
         len: usize,
         ops: Vec<StructVariantOp>,
+    },
+}
+pub enum MapOp {
+    Key {
+        key: Vec<Op>,
+    },
+    Value {
+        value: Vec<Op>,
     },
 }
 pub enum StructOp {

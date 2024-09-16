@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{to_ast, Op, StructOp, StructVariantOp};
+use crate::{to_ast, MapOp, Op, StructOp, StructVariantOp};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -193,7 +193,10 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
     }
 
     fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        todo!()
+        Ok(SerializeMap::new(
+            self,
+            len,
+        ))
     }
 
     fn serialize_struct(
@@ -221,6 +224,61 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
             variant,
             len,
         ))
+    }
+}
+
+pub struct SerializeMap<'ops> {
+    s: Serializer::<'ops>,
+    len: Option<usize>,
+    inner_ops: Vec<MapOp>,
+}
+impl<'ops> SerializeMap<'ops> {
+    pub fn new(
+        s: Serializer::<'ops>,
+        len: Option<usize>,
+    ) -> Self {
+        Self {
+            s,
+            len,
+            inner_ops: Vec::new(),
+        }
+    }
+}
+impl<'ops> serde::ser::SerializeMap for SerializeMap<'ops> {
+    type Ok = ();
+    type Error = Error;
+
+    fn serialize_key<T>(&mut self, key: &T) -> Result<(), Self::Error>
+    where
+        T: ?Sized + serde::Serialize
+    {
+        self.inner_ops.push(MapOp::Key {
+            key: to_ast(key)?,
+        });
+        Ok(())
+    }
+    fn serialize_value<T>(&mut self, value: &T) -> Result<(), Self::Error>
+    where
+        T: ?Sized + serde::Serialize
+    {
+        self.inner_ops.push(MapOp::Value {
+            value: to_ast(value)?,
+        });
+        Ok(())
+    }
+
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        let Self {
+            s,
+            len,
+            inner_ops,
+         } = self;
+
+        s.ops.push(Op::Map {
+            len,
+            ops: inner_ops,
+        });
+        Ok(())
     }
 }
 
