@@ -1,5 +1,5 @@
 #[derive(Debug, Clone, PartialEq)]
-pub enum Op {
+pub enum Ast {
     Bool(bool),
 
     I8(i8),
@@ -20,7 +20,7 @@ pub enum Op {
     Bytes(Vec<u8>),
 
     None,
-    Some(Vec<Op>),
+    Some(Vec<Ast>),
 
     Unit,
     UnitStruct(String),
@@ -32,102 +32,102 @@ pub enum Op {
 
     NewtypeStruct {
         name: String,
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
     NewtypeVariant {
         name: String,
         variant_index: u32,
         variant: String,
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
 
     Seq {
         len: Option<usize>,
-        ops: Vec<SeqOp>,
+        ops: Vec<Seq>,
     },
 
     Tuple {
         len: usize,
-        ops: Vec<TupleOp>,
+        ops: Vec<Tuple>,
     },
     TupleStruct {
         name: String,
         len: usize,
-        ops: Vec<TupleStructOp>,
+        ops: Vec<TupleStruct>,
     },
     TupleVariant {
         name: String,
         variant_index: u32,
         variant: String,
         len: usize,
-        ops: Vec<TupleVariantOp>,
+        ops: Vec<TupleVariant>,
     },
 
     Map {
         len: Option<usize>,
-        ops: Vec<MapOp>,
+        ops: Vec<Map>,
     },
     Struct {
         name: String,
         len: usize,
-        ops: Vec<StructOp>,
+        ops: Vec<Struct>,
     },
     StructVariant {
         name: String,
         variant_index: u32,
         variant: String,
         len: usize,
-        ops: Vec<StructVariantOp>,
+        ops: Vec<StructVariant>,
     },
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum TupleOp {
+pub enum Tuple {
     Element {
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum TupleStructOp {
+pub enum TupleStruct {
     Field {
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum TupleVariantOp {
+pub enum TupleVariant {
     Field {
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum SeqOp {
+pub enum Seq {
     Element {
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum MapOp {
+pub enum Map {
     Key {
-        key: Vec<Op>,
+        key: Vec<Ast>,
     },
     Value {
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum StructOp {
+pub enum Struct {
     Field {
         key: String,
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
     Skip {
         key: String,
     }
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum StructVariantOp {
+pub enum StructVariant {
     Field {
         key: String,
-        value: Vec<Op>,
+        value: Vec<Ast>,
     },
     Skip {
         key: String,

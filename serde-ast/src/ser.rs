@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{to_ast, MapOp, Op, SeqOp, StructOp, StructVariantOp, TupleOp, TupleStructOp, TupleVariantOp};
+use crate::{ast, to_ast, Ast};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -15,108 +15,108 @@ impl serde::ser::Error for Error {
     }
 }
 
-pub struct Serializer<'ops> {
-    ops: &'ops mut Vec<Op>,
+pub struct Serializer<'ast> {
+    ops: &'ast mut Vec<Ast>,
 }
-impl<'ops> Serializer<'ops> {
-    pub fn new(ops: &'ops mut Vec::<Op>) -> Self {
+impl<'ast> Serializer<'ast> {
+    pub fn new(ops: &'ast mut Vec::<Ast>) -> Self {
         Self {
             ops,
         }
     }
 }
-impl<'ops> serde::Serializer for Serializer<'ops> {
+impl<'ast> serde::Serializer for Serializer<'ast>{
     type Ok = ();
     type Error = Error;
 
-    type SerializeSeq = SerializeSeq::<'ops>;
-    type SerializeTuple = SerializeTuple::<'ops>;
-    type SerializeTupleStruct = SerializeTupleStruct::<'ops>;
-    type SerializeTupleVariant = SerializeTupleVariant::<'ops>;
-    type SerializeMap = SerializeMap::<'ops>;
-    type SerializeStruct = SerializeStruct::<'ops>;
-    type SerializeStructVariant = SerializeStructVariant::<'ops>;
+    type SerializeSeq = SerializeSeq::<'ast>;
+    type SerializeTuple = SerializeTuple::<'ast>;
+    type SerializeTupleStruct = SerializeTupleStruct::<'ast>;
+    type SerializeTupleVariant = SerializeTupleVariant::<'ast>;
+    type SerializeMap = SerializeMap::<'ast>;
+    type SerializeStruct = SerializeStruct::<'ast>;
+    type SerializeStructVariant = SerializeStructVariant::<'ast>;
 
     fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::Bool(v));
+        self.ops.push(Ast::Bool(v));
         Ok(())
     }
 
     fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::I8(v));
+        self.ops.push(Ast::I8(v));
         Ok(())
     }
     fn serialize_i16(self, v: i16) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::I16(v));
+        self.ops.push(Ast::I16(v));
         Ok(())
     }
     fn serialize_i32(self, v: i32) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::I32(v));
+        self.ops.push(Ast::I32(v));
         Ok(())
     }
     fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::I64(v));
+        self.ops.push(Ast::I64(v));
         Ok(())
     }
 
     fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::U8(v));
+        self.ops.push(Ast::U8(v));
         Ok(())
     }
     fn serialize_u16(self, v: u16) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::U16(v));
+        self.ops.push(Ast::U16(v));
         Ok(())
     }
     fn serialize_u32(self, v: u32) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::U32(v));
+        self.ops.push(Ast::U32(v));
         Ok(())
     }
 
     fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::U64(v));
+        self.ops.push(Ast::U64(v));
         Ok(())
     }
 
     fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::F32(v));
+        self.ops.push(Ast::F32(v));
         Ok(())
     }
     fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::F64(v));
+        self.ops.push(Ast::F64(v));
         Ok(())
     }
 
     fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::Char(v));
+        self.ops.push(Ast::Char(v));
         Ok(())
     }
     fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::Str(v.to_owned()));
+        self.ops.push(Ast::Str(v.to_owned()));
         Ok(())
     }
     fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::Bytes(v.to_owned()));
+        self.ops.push(Ast::Bytes(v.to_owned()));
         Ok(())
     }
 
     fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::None);
+        self.ops.push(Ast::None);
         Ok(())
     }
     fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
     where
         T: ?Sized + serde::Serialize
     {
-        self.ops.push(Op::Some(to_ast(value)?));
+        self.ops.push(Ast::Some(to_ast(value)?));
         Ok(())
     }
 
     fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::Unit);
+        self.ops.push(Ast::Unit);
         Ok(())
     }
     fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::UnitStruct(name.to_owned()));
+        self.ops.push(Ast::UnitStruct(name.to_owned()));
         Ok(())
     }
     fn serialize_unit_variant(
@@ -125,7 +125,7 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
         variant_index: u32,
         variant: &'static str,
     ) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Op::UnitVariant {
+        self.ops.push(Ast::UnitVariant {
             name: name.to_owned(),
             variant_index,
             variant: variant.to_owned(),
@@ -141,7 +141,7 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.ops.push(Op::NewtypeStruct {
+        self.ops.push(Ast::NewtypeStruct {
             name: name.to_owned(),
             value: to_ast(value)?,
         });
@@ -157,7 +157,7 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.ops.push(Op::NewtypeVariant {
+        self.ops.push(Ast::NewtypeVariant {
             name: name.to_owned(),
             variant_index,
             variant: variant.to_owned(),
@@ -240,14 +240,14 @@ impl<'ops> serde::Serializer for Serializer<'ops> {
         ))
     }
 }
-pub struct SerializeTuple<'ops> {
-    s: Serializer::<'ops>,
+pub struct SerializeTuple<'ast> {
+    s: Serializer::<'ast>,
     len: usize,
-    inner_ops: Vec<TupleOp>,
+    inner_ops: Vec<ast::Tuple>,
 }
-impl<'ops> SerializeTuple<'ops> {
+impl<'ast> SerializeTuple<'ast> {
     pub fn new(
-        s: Serializer::<'ops>,
+        s: Serializer::<'ast>,
         len: usize,
     ) -> Self {
         Self {
@@ -257,7 +257,7 @@ impl<'ops> SerializeTuple<'ops> {
         }
     }
 }
-impl<'ops> serde::ser::SerializeTuple for SerializeTuple<'ops> {
+impl<'ast> serde::ser::SerializeTuple for SerializeTuple<'ast> {
     type Ok = ();
     type Error = Error;
 
@@ -265,7 +265,7 @@ impl<'ops> serde::ser::SerializeTuple for SerializeTuple<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.inner_ops.push(TupleOp::Element {
+        self.inner_ops.push(ast::Tuple::Element {
             value: to_ast(value)?,
         });
         Ok(())
@@ -278,22 +278,22 @@ impl<'ops> serde::ser::SerializeTuple for SerializeTuple<'ops> {
             inner_ops,
          } = self;
 
-        s.ops.push(Op::Tuple {
+        s.ops.push(Ast::Tuple {
             len,
             ops: inner_ops,
         });
         Ok(())
     }
 }
-pub struct SerializeTupleStruct<'ops> {
-    s: Serializer::<'ops>,
+pub struct SerializeTupleStruct<'ast> {
+    s: Serializer::<'ast>,
     name: String,
     len: usize,
-    inner_ops: Vec<TupleStructOp>,
+    inner_ops: Vec<ast::TupleStruct>,
 }
-impl<'ops> SerializeTupleStruct<'ops> {
+impl<'ast> SerializeTupleStruct<'ast> {
     pub fn new(
-        s: Serializer::<'ops>,
+        s: Serializer::<'ast>,
         name: String,
         len: usize,
     ) -> Self {
@@ -305,7 +305,7 @@ impl<'ops> SerializeTupleStruct<'ops> {
         }
     }
 }
-impl<'ops> serde::ser::SerializeTupleStruct for SerializeTupleStruct<'ops> {
+impl<'ast> serde::ser::SerializeTupleStruct for SerializeTupleStruct<'ast> {
     type Ok = ();
     type Error = Error;
 
@@ -317,7 +317,7 @@ impl<'ops> serde::ser::SerializeTupleStruct for SerializeTupleStruct<'ops> {
             inner_ops,
          } = self;
 
-        s.ops.push(Op::TupleStruct {
+        s.ops.push(Ast::TupleStruct {
             name,
             len,
             ops: inner_ops,
@@ -329,23 +329,23 @@ impl<'ops> serde::ser::SerializeTupleStruct for SerializeTupleStruct<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.inner_ops.push(TupleStructOp::Field {
+        self.inner_ops.push(ast::TupleStruct::Field {
             value: to_ast(value)?,
         });
         Ok(())
     }
 }
-pub struct SerializeTupleVariant<'ops> {
-    s: Serializer::<'ops>,
+pub struct SerializeTupleVariant<'ast> {
+    s: Serializer::<'ast>,
     name: String,
     variant_index: u32,
     variant: String,
     len: usize,
-    inner_ops: Vec<TupleVariantOp>,
+    inner_ops: Vec<ast::TupleVariant>,
 }
-impl<'ops> SerializeTupleVariant<'ops> {
+impl<'ast> SerializeTupleVariant<'ast> {
     pub fn new(
-        s: Serializer::<'ops>,
+        s: Serializer::<'ast>,
         name: String,
         variant_index: u32,
         variant: String,
@@ -361,7 +361,7 @@ impl<'ops> SerializeTupleVariant<'ops> {
         }
     }
 }
-impl<'ops> serde::ser::SerializeTupleVariant for SerializeTupleVariant<'ops> {
+impl<'ast> serde::ser::SerializeTupleVariant for SerializeTupleVariant<'ast> {
     type Ok = ();
     type Error = Error;
 
@@ -375,7 +375,7 @@ impl<'ops> serde::ser::SerializeTupleVariant for SerializeTupleVariant<'ops> {
             inner_ops,
          } = self;
 
-        s.ops.push(Op::TupleVariant {
+        s.ops.push(Ast::TupleVariant {
             name,
             variant_index,
             variant,
@@ -389,21 +389,21 @@ impl<'ops> serde::ser::SerializeTupleVariant for SerializeTupleVariant<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.inner_ops.push(TupleVariantOp::Field {
+        self.inner_ops.push(ast::TupleVariant::Field {
             value: to_ast(value)?,
         });
         Ok(())
     }
 }
 
-pub struct SerializeSeq<'ops> {
-    s: Serializer::<'ops>,
+pub struct SerializeSeq<'ast> {
+    s: Serializer::<'ast>,
     len: Option<usize>,
-    inner_ops: Vec<SeqOp>,
+    inner_ops: Vec<ast::Seq>,
 }
-impl<'ops> SerializeSeq<'ops> {
+impl<'ast> SerializeSeq<'ast> {
     pub fn new(
-        s: Serializer::<'ops>,
+        s: Serializer::<'ast>,
         len: Option<usize>,
     ) -> Self {
         Self {
@@ -413,7 +413,7 @@ impl<'ops> SerializeSeq<'ops> {
         }
     }
 }
-impl<'ops> serde::ser::SerializeSeq for SerializeSeq<'ops> {
+impl<'ast> serde::ser::SerializeSeq for SerializeSeq<'ast> {
     type Ok = ();
     type Error = Error;
 
@@ -421,7 +421,7 @@ impl<'ops> serde::ser::SerializeSeq for SerializeSeq<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.inner_ops.push(SeqOp::Element {
+        self.inner_ops.push(ast::Seq::Element {
             value: to_ast(value)?,
         });
         Ok(())
@@ -434,7 +434,7 @@ impl<'ops> serde::ser::SerializeSeq for SerializeSeq<'ops> {
             inner_ops,
          } = self;
 
-        s.ops.push(Op::Seq {
+        s.ops.push(Ast::Seq {
             len,
             ops: inner_ops,
         });
@@ -442,14 +442,14 @@ impl<'ops> serde::ser::SerializeSeq for SerializeSeq<'ops> {
     }
 }
 
-pub struct SerializeMap<'ops> {
-    s: Serializer::<'ops>,
+pub struct SerializeMap<'ast> {
+    s: Serializer::<'ast>,
     len: Option<usize>,
-    inner_ops: Vec<MapOp>,
+    inner_ops: Vec<ast::Map>,
 }
-impl<'ops> SerializeMap<'ops> {
+impl<'ast> SerializeMap<'ast> {
     pub fn new(
-        s: Serializer::<'ops>,
+        s: Serializer::<'ast>,
         len: Option<usize>,
     ) -> Self {
         Self {
@@ -459,7 +459,7 @@ impl<'ops> SerializeMap<'ops> {
         }
     }
 }
-impl<'ops> serde::ser::SerializeMap for SerializeMap<'ops> {
+impl<'ast> serde::ser::SerializeMap for SerializeMap<'ast> {
     type Ok = ();
     type Error = Error;
 
@@ -467,7 +467,7 @@ impl<'ops> serde::ser::SerializeMap for SerializeMap<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.inner_ops.push(MapOp::Key {
+        self.inner_ops.push(ast::Map::Key {
             key: to_ast(key)?,
         });
         Ok(())
@@ -476,7 +476,7 @@ impl<'ops> serde::ser::SerializeMap for SerializeMap<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.inner_ops.push(MapOp::Value {
+        self.inner_ops.push(ast::Map::Value {
             value: to_ast(value)?,
         });
         Ok(())
@@ -489,7 +489,7 @@ impl<'ops> serde::ser::SerializeMap for SerializeMap<'ops> {
             inner_ops,
          } = self;
 
-        s.ops.push(Op::Map {
+        s.ops.push(Ast::Map {
             len,
             ops: inner_ops,
         });
@@ -497,15 +497,15 @@ impl<'ops> serde::ser::SerializeMap for SerializeMap<'ops> {
     }
 }
 
-pub struct SerializeStruct<'ops> {
-    s: Serializer::<'ops>,
+pub struct SerializeStruct<'ast> {
+    s: Serializer::<'ast>,
     name: String,
     len: usize,
-    inner_ops: Vec<StructOp>,
+    inner_ops: Vec<ast::Struct>,
 }
-impl<'ops> SerializeStruct<'ops> {
+impl<'ast> SerializeStruct<'ast> {
     pub fn new(
-        s: Serializer::<'ops>,
+        s: Serializer::<'ast>,
         name: &str,
         len: usize,
     ) -> Self {
@@ -517,7 +517,7 @@ impl<'ops> SerializeStruct<'ops> {
         }
     }
 }
-impl<'ops> serde::ser::SerializeStruct for SerializeStruct<'ops> {
+impl<'ast> serde::ser::SerializeStruct for SerializeStruct<'ast> {
     type Ok = ();
     type Error = Error;
 
@@ -525,7 +525,7 @@ impl<'ops> serde::ser::SerializeStruct for SerializeStruct<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.inner_ops.push(StructOp::Field {
+        self.inner_ops.push(ast::Struct::Field {
             key: key.to_owned(),
             value: to_ast(value)?,
         });
@@ -540,7 +540,7 @@ impl<'ops> serde::ser::SerializeStruct for SerializeStruct<'ops> {
             inner_ops,
          } = self;
 
-        s.ops.push(Op::Struct {
+        s.ops.push(Ast::Struct {
             name,
             len,
             ops: inner_ops,
@@ -549,24 +549,24 @@ impl<'ops> serde::ser::SerializeStruct for SerializeStruct<'ops> {
     }
 
     fn skip_field(&mut self, key: &'static str) -> Result<(), Self::Error> {
-        self.inner_ops.push(StructOp::Skip {
+        self.inner_ops.push(ast::Struct::Skip {
             key: key.to_owned(),
         });
         Ok(())
     }
 }
 
-pub struct SerializeStructVariant<'ops> {
-    s: Serializer::<'ops>,
+pub struct SerializeStructVariant<'ast> {
+    s: Serializer::<'ast>,
     name: String,
     variant_index: u32,
     variant: String,
     len: usize,
-    inner_ops: Vec<StructVariantOp>,
+    inner_ops: Vec<ast::StructVariant>,
 }
-impl<'ops> SerializeStructVariant<'ops> {
+impl<'ast> SerializeStructVariant<'ast> {
     pub fn new(
-        s: Serializer::<'ops>,
+        s: Serializer::<'ast>,
         name: &str,
         variant_index: u32,
         variant: &str,
@@ -582,7 +582,7 @@ impl<'ops> SerializeStructVariant<'ops> {
         }
     }
 }
-impl<'ops> serde::ser::SerializeStructVariant for SerializeStructVariant<'ops> {
+impl<'ast> serde::ser::SerializeStructVariant for SerializeStructVariant<'ast> {
     type Ok = ();
     type Error = Error;
 
@@ -590,7 +590,7 @@ impl<'ops> serde::ser::SerializeStructVariant for SerializeStructVariant<'ops> {
     where
         T: ?Sized + serde::Serialize
     {
-        self.inner_ops.push(StructVariantOp::Field {
+        self.inner_ops.push(ast::StructVariant::Field {
             key: key.to_owned(),
             value: to_ast(value)?,
         });
@@ -607,7 +607,7 @@ impl<'ops> serde::ser::SerializeStructVariant for SerializeStructVariant<'ops> {
             inner_ops,
          } = self;
 
-        s.ops.push(Op::StructVariant {
+        s.ops.push(Ast::StructVariant {
             name,
             variant_index,
             variant,
@@ -618,7 +618,7 @@ impl<'ops> serde::ser::SerializeStructVariant for SerializeStructVariant<'ops> {
     }
 
     fn skip_field(&mut self, key: &'static str) -> Result<(), Self::Error> {
-        self.inner_ops.push(StructVariantOp::Skip {
+        self.inner_ops.push(ast::StructVariant::Skip {
             key: key.to_owned(),
         });
         Ok(())

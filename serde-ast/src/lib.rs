@@ -1,12 +1,12 @@
 pub mod ser;
-pub mod op;
+pub mod ast;
 
 use serde::Serialize;
 
-pub use op::*;
+pub use ast::Ast;
 pub use ser::Serializer;
 
-pub fn to_ast<T>(value: &T) -> Result<Vec<Op>, ser::Error>
+pub fn to_ast<T>(value: &T) -> Result<Vec<Ast>, ser::Error>
 where
     T: Serialize + ?Sized,
 {
