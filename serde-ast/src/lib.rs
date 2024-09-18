@@ -12,9 +12,7 @@
 
 //! Implements an [Ast] representation of [serde] serialization.
 //!
-//! This allows to see the serializattion calls made, inspect them, traverse or edit, or serialize with a [serde::Serializer].
-//!
-//! Serializing the [Ast] is equivalent to directly serializing the original value.
+//! This allows to see the serialization calls made, inspect them, traverse, edit, or serialize with a [serde::Serializer].
 //!
 //! ```
 //! # use serde::{Deserialize, Serialize};
@@ -40,6 +38,25 @@
 //!         },
 //!     ],
 //! }
+//! ```
+//!
+//! Serializing the [Ast] is equivalent to directly serializing the original value.
+//!
+//! ```
+//! # use serde::{Deserialize, Serialize};
+//! # use serde_ast::to_ast;
+//! # #[derive(Serialize, Deserialize)]
+//! # struct Example {
+//! #     hello: String,
+//! # }
+//! # let example = Example { hello: "World".to_string() };
+//! # let ast = to_ast(&example).expect("serialize to_ast");
+//! // serialize the ast
+//! let output = serde_json::to_string(&ast).expect("serde_json::to_string");
+//! // serialize the value directly
+//! let direct = serde_json::to_string(&example).expect("serde_json::to_string");
+//! // the result is the same
+//! assert_eq!(output, direct);
 //! ```
 
 pub mod ast;
