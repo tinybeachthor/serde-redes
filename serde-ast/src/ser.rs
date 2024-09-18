@@ -1,8 +1,12 @@
+//! Implement [Serializer] for [Ast].
+
 use std::fmt::Display;
 
 use crate::{ast, to_ast, Ast};
 
+/// [serde::Serializer::Error] for [Serializer]
 #[derive(Debug, thiserror::Error)]
+#[allow(missing_docs)] // errors are self-documenting
 pub enum Error {
     #[error("error")]
     Custom(String),
@@ -16,8 +20,12 @@ impl serde::ser::Error for Error {
     }
 }
 
+/// [Serializer] is a [serde::Serializer] for [Ast].
+#[derive(Debug, Clone)]
 pub struct Serializer {}
-impl<'ast> Serializer {
+impl Serializer {
+    /// Create a new [Serializer].
+    #[allow(clippy::new_without_default)] // might accept args in the future
     pub fn new() -> Self {
         Self {}
     }
@@ -192,11 +200,15 @@ impl serde::Serializer for Serializer {
         ))
     }
 }
+
+/// [serde::ser::SerializeTuple] for [Serializer]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SerializeTuple {
     len: usize,
     inner_ops: Vec<ast::Tuple>,
 }
 impl SerializeTuple {
+    /// Create new [SerializeTuple].
     pub fn new(len: usize) -> Self {
         Self {
             len,
@@ -227,12 +239,16 @@ impl serde::ser::SerializeTuple for SerializeTuple {
         })
     }
 }
+
+/// [serde::ser::SerializeTupleStruct] for [Serializer]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SerializeTupleStruct {
     name: &'static str,
     len: usize,
     inner_ops: Vec<ast::TupleStruct>,
 }
 impl SerializeTupleStruct {
+    /// Create new [SerializeTupleStruct].
     pub fn new(name: &'static str, len: usize) -> Self {
         Self {
             name,
@@ -269,6 +285,9 @@ impl serde::ser::SerializeTupleStruct for SerializeTupleStruct {
         Ok(())
     }
 }
+
+/// [serde::ser::SerializeTupleVariant] for [Serializer]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SerializeTupleVariant {
     name: &'static str,
     variant_index: u32,
@@ -277,6 +296,7 @@ pub struct SerializeTupleVariant {
     inner_ops: Vec<ast::TupleVariant>,
 }
 impl SerializeTupleVariant {
+    /// Create new [SerializeTupleVariant].
     pub fn new(name: &'static str, variant_index: u32, variant: &'static str, len: usize) -> Self {
         Self {
             name,
@@ -320,11 +340,14 @@ impl serde::ser::SerializeTupleVariant for SerializeTupleVariant {
     }
 }
 
+/// [serde::ser::SerializeSeq] for [Serializer]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SerializeSeq {
     len: Option<usize>,
     inner_ops: Vec<ast::Seq>,
 }
 impl SerializeSeq {
+    /// Create new [SerializeSeq].
     pub fn new(len: Option<usize>) -> Self {
         Self {
             len,
@@ -356,11 +379,14 @@ impl serde::ser::SerializeSeq for SerializeSeq {
     }
 }
 
+/// [serde::ser::SerializeMap] for [Serializer]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SerializeMap {
     len: Option<usize>,
     inner_ops: Vec<ast::Map>,
 }
 impl SerializeMap {
+    /// Create new [SerializeMap].
     pub fn new(len: Option<usize>) -> Self {
         Self {
             len,
@@ -401,12 +427,15 @@ impl serde::ser::SerializeMap for SerializeMap {
     }
 }
 
+/// [serde::ser::SerializeStruct] for [Serializer]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SerializeStruct {
     name: &'static str,
     len: usize,
     inner_ops: Vec<ast::Struct>,
 }
 impl SerializeStruct {
+    /// Create new [SerializeStruct].
     pub fn new(name: &'static str, len: usize) -> Self {
         Self {
             name,
@@ -450,6 +479,8 @@ impl serde::ser::SerializeStruct for SerializeStruct {
     }
 }
 
+/// [serde::ser::SerializeStructVariant] for [Serializer]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SerializeStructVariant {
     name: &'static str,
     variant_index: u32,
@@ -458,6 +489,7 @@ pub struct SerializeStructVariant {
     inner_ops: Vec<ast::StructVariant>,
 }
 impl SerializeStructVariant {
+    /// Create new [SerializeStructVariant].
     pub fn new(name: &'static str, variant_index: u32, variant: &'static str, len: usize) -> Self {
         Self {
             name,
