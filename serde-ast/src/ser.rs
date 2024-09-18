@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 
-use crate::{ast, to_ast, Ast};
+use crate::{ast::{self, Final}, to_ast, Ast};
 
 /// [serde::Serializer::Error] for [Serializer]
 #[derive(Debug, thiserror::Error)]
@@ -205,7 +205,7 @@ impl serde::Serializer for Serializer {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SerializeTuple {
     len: usize,
-    inner_ops: Vec<ast::Tuple>,
+    inner_ops: Vec<ast::Tuple<Final>>,
 }
 impl SerializeTuple {
     /// Create new [SerializeTuple].
@@ -245,7 +245,7 @@ impl serde::ser::SerializeTuple for SerializeTuple {
 pub struct SerializeTupleStruct {
     name: &'static str,
     len: usize,
-    inner_ops: Vec<ast::TupleStruct>,
+    inner_ops: Vec<ast::TupleStruct<Final>>,
 }
 impl SerializeTupleStruct {
     /// Create new [SerializeTupleStruct].
@@ -293,7 +293,7 @@ pub struct SerializeTupleVariant {
     variant_index: u32,
     variant: &'static str,
     len: usize,
-    inner_ops: Vec<ast::TupleVariant>,
+    inner_ops: Vec<ast::TupleVariant<Final>>,
 }
 impl SerializeTupleVariant {
     /// Create new [SerializeTupleVariant].
@@ -344,7 +344,7 @@ impl serde::ser::SerializeTupleVariant for SerializeTupleVariant {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SerializeSeq {
     len: Option<usize>,
-    inner_ops: Vec<ast::Seq>,
+    inner_ops: Vec<ast::Seq<Final>>,
 }
 impl SerializeSeq {
     /// Create new [SerializeSeq].
@@ -383,7 +383,7 @@ impl serde::ser::SerializeSeq for SerializeSeq {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SerializeMap {
     len: Option<usize>,
-    inner_ops: Vec<ast::Map>,
+    inner_ops: Vec<ast::Map<Final>>,
 }
 impl SerializeMap {
     /// Create new [SerializeMap].
@@ -432,7 +432,7 @@ impl serde::ser::SerializeMap for SerializeMap {
 pub struct SerializeStruct {
     name: &'static str,
     len: usize,
-    inner_ops: Vec<ast::Struct>,
+    inner_ops: Vec<ast::Struct<Final>>,
 }
 impl SerializeStruct {
     /// Create new [SerializeStruct].
@@ -486,7 +486,7 @@ pub struct SerializeStructVariant {
     variant_index: u32,
     variant: &'static str,
     len: usize,
-    inner_ops: Vec<ast::StructVariant>,
+    inner_ops: Vec<ast::StructVariant<Final>>,
 }
 impl SerializeStructVariant {
     /// Create new [SerializeStructVariant].

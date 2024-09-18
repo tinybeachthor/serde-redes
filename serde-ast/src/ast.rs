@@ -10,9 +10,18 @@ use serde::{
     Serialize,
 };
 
+/// Represents an empty type. This can never be constructed.
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
+pub enum Final {}
+
+/// Define a closed [Ast] without any injected type extension.
+pub type Ast = XAst<Final>;
+
 /// Represent calls made to [serde::Serializer] during serialization.
+///
+/// This is an extensible
 #[derive(Debug, Clone, PartialEq)]
-pub enum Ast {
+pub enum XAst<X> {
     /// [serde::Serializer::serialize_bool]
     Bool(bool),
 
@@ -49,7 +58,7 @@ pub enum Ast {
     /// [serde::Serializer::serialize_none]
     None,
     /// [serde::Serializer::serialize_some]
-    Some(Box<Ast>),
+    Some(Box<XAst<X>>),
 
     /// [serde::Serializer::serialize_unit]
     Unit,
@@ -70,7 +79,7 @@ pub enum Ast {
         /// name
         name: &'static str,
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
     /// [serde::Serializer::serialize_newtype_variant]
     NewtypeVariant {
@@ -81,7 +90,7 @@ pub enum Ast {
         /// variant
         variant: &'static str,
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
 
     /// [serde::Serializer::serialize_seq]
@@ -89,7 +98,7 @@ pub enum Ast {
         /// len
         len: Option<usize>,
         /// [serde::ser::SerializeSeq] operations
-        ops: Vec<Seq>,
+        ops: Vec<Seq<X>>,
     },
 
     /// [serde::Serializer::serialize_tuple]
@@ -97,7 +106,7 @@ pub enum Ast {
         /// len
         len: usize,
         /// [serde::ser::SerializeTuple] operations
-        ops: Vec<Tuple>,
+        ops: Vec<Tuple<X>>,
     },
     /// [serde::Serializer::serialize_tuple_struct]
     TupleStruct {
@@ -106,7 +115,7 @@ pub enum Ast {
         /// len
         len: usize,
         /// [serde::ser::SerializeTupleStruct] operations
-        ops: Vec<TupleStruct>,
+        ops: Vec<TupleStruct<X>>,
     },
     /// [serde::Serializer::serialize_tuple_variant]
     TupleVariant {
@@ -119,7 +128,7 @@ pub enum Ast {
         /// len
         len: usize,
         /// [serde::ser::SerializeTupleVariant] operations
-        ops: Vec<TupleVariant>,
+        ops: Vec<TupleVariant<X>>,
     },
 
     /// [serde::Serializer::serialize_map]
@@ -127,7 +136,7 @@ pub enum Ast {
         /// len
         len: Option<usize>,
         /// [serde::ser::SerializeMap] operations
-        ops: Vec<Map>,
+        ops: Vec<Map<X>>,
     },
     /// [serde::Serializer::serialize_struct]
     Struct {
@@ -136,7 +145,7 @@ pub enum Ast {
         /// len
         len: usize,
         /// [serde::ser::SerializeStruct] operations
-        ops: Vec<Struct>,
+        ops: Vec<Struct<X>>,
     },
     /// [serde::Serializer::serialize_struct_variant]
     StructVariant {
@@ -149,60 +158,68 @@ pub enum Ast {
         /// len
         len: usize,
         /// [serde::ser::SerializeStructVariant] operations
-        ops: Vec<StructVariant>,
+        ops: Vec<StructVariant<X>>,
     },
+
+    /// Allow arbitrary extensions of this enum by injecting an extension type.
+    X(X),
 }
-impl Display for Ast {
+
+impl<X> Display for XAst<X>
+where
+    X: std::fmt::Debug,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:#?}", self)
     }
 }
-impl Serialize for Ast {
+
+impl Serialize for XAst<Final> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
         match self {
-            Ast::Bool(v) => serializer.serialize_bool(*v),
-            Ast::I8(v) => serializer.serialize_i8(*v),
-            Ast::I16(v) => serializer.serialize_i16(*v),
-            Ast::I32(v) => serializer.serialize_i32(*v),
-            Ast::I64(v) => serializer.serialize_i64(*v),
-            Ast::U8(v) => serializer.serialize_u8(*v),
-            Ast::U16(v) => serializer.serialize_u16(*v),
-            Ast::U32(v) => serializer.serialize_u32(*v),
-            Ast::U64(v) => serializer.serialize_u64(*v),
-            Ast::F32(v) => serializer.serialize_f32(*v),
-            Ast::F64(v) => serializer.serialize_f64(*v),
-            Ast::Char(v) => serializer.serialize_char(*v),
-            Ast::Str(v) => serializer.serialize_str(v),
-            Ast::Bytes(v) => serializer.serialize_bytes(v),
-            Ast::None => serializer.serialize_none(),
-            Ast::Some(v) => serializer.serialize_some(v),
-            Ast::Unit => serializer.serialize_unit(),
-            Ast::UnitStruct(name) => serializer.serialize_unit_struct(name),
-            Ast::UnitVariant {
+            Self::Bool(v) => serializer.serialize_bool(*v),
+            Self::I8(v) => serializer.serialize_i8(*v),
+            Self::I16(v) => serializer.serialize_i16(*v),
+            Self::I32(v) => serializer.serialize_i32(*v),
+            Self::I64(v) => serializer.serialize_i64(*v),
+            Self::U8(v) => serializer.serialize_u8(*v),
+            Self::U16(v) => serializer.serialize_u16(*v),
+            Self::U32(v) => serializer.serialize_u32(*v),
+            Self::U64(v) => serializer.serialize_u64(*v),
+            Self::F32(v) => serializer.serialize_f32(*v),
+            Self::F64(v) => serializer.serialize_f64(*v),
+            Self::Char(v) => serializer.serialize_char(*v),
+            Self::Str(v) => serializer.serialize_str(v),
+            Self::Bytes(v) => serializer.serialize_bytes(v),
+            Self::None => serializer.serialize_none(),
+            Self::Some(v) => serializer.serialize_some(v),
+            Self::Unit => serializer.serialize_unit(),
+            Self::UnitStruct(name) => serializer.serialize_unit_struct(name),
+            Self::UnitVariant {
                 name,
                 variant_index,
                 variant,
             } => serializer.serialize_unit_variant(name, *variant_index, variant),
-            Ast::NewtypeStruct { name, value } => serializer.serialize_newtype_struct(name, value),
-            Ast::NewtypeVariant {
+            Self::NewtypeStruct { name, value } => serializer.serialize_newtype_struct(name, value),
+            Self::NewtypeVariant {
                 name,
                 variant_index,
                 variant,
                 value,
             } => serializer.serialize_newtype_variant(name, *variant_index, variant, value),
-            Ast::Seq { len, ops } => {
+            Self::Seq { len, ops } => {
                 let mut s = serializer.serialize_seq(*len)?;
                 for op in ops {
                     match op {
-                        Seq::Element { value } => s.serialize_element(value)?,
+                        Seq::Element { value } => s.serialize_element(&value)?,
                     }
                 }
                 s.end()
             }
-            Ast::Tuple { len, ops } => {
+            Self::Tuple { len, ops } => {
                 let mut s = serializer.serialize_tuple(*len)?;
                 for op in ops {
                     match op {
@@ -211,7 +228,7 @@ impl Serialize for Ast {
                 }
                 s.end()
             }
-            Ast::TupleStruct { name, len, ops } => {
+            Self::TupleStruct { name, len, ops } => {
                 let mut s = serializer.serialize_tuple_struct(name, *len)?;
                 for op in ops {
                     match op {
@@ -220,7 +237,7 @@ impl Serialize for Ast {
                 }
                 s.end()
             }
-            Ast::TupleVariant {
+            Self::TupleVariant {
                 name,
                 variant_index,
                 variant,
@@ -236,7 +253,7 @@ impl Serialize for Ast {
                 }
                 s.end()
             }
-            Ast::Map { len, ops } => {
+            Self::Map { len, ops } => {
                 let mut s = serializer.serialize_map(*len)?;
                 for op in ops {
                     match op {
@@ -246,7 +263,7 @@ impl Serialize for Ast {
                 }
                 s.end()
             }
-            Ast::Struct { name, len, ops } => {
+            Self::Struct { name, len, ops } => {
                 let mut s = serializer.serialize_struct(name, *len)?;
                 for op in ops {
                     match op {
@@ -256,7 +273,7 @@ impl Serialize for Ast {
                 }
                 s.end()
             }
-            Ast::StructVariant {
+            Self::StructVariant {
                 name,
                 variant_index,
                 variant,
@@ -273,74 +290,75 @@ impl Serialize for Ast {
                 }
                 s.end()
             }
+            Self::X(never) => match *never {},
         }
     }
 }
 
 /// [serde::ser::SerializeTuple]
 #[derive(Debug, Clone, PartialEq)]
-pub enum Tuple {
+pub enum Tuple<X> {
     /// [serde::ser::SerializeTuple::serialize_element]
     Element {
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
 }
 
 /// [serde::ser::SerializeTupleStruct]
 #[derive(Debug, Clone, PartialEq)]
-pub enum TupleStruct {
+pub enum TupleStruct<X> {
     /// [serde::ser::SerializeTupleStruct::serialize_field]
     Field {
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
 }
 
 /// [serde::ser::SerializeTupleVariant]
 #[derive(Debug, Clone, PartialEq)]
-pub enum TupleVariant {
+pub enum TupleVariant<X> {
     /// [serde::ser::SerializeTupleVariant::serialize_field]
     Field {
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
 }
 
 /// [serde::ser::SerializeSeq]
 #[derive(Debug, Clone, PartialEq)]
-pub enum Seq {
+pub enum Seq<X> {
     /// [serde::ser::SerializeSeq::serialize_element]
     Element {
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
 }
 
 /// [serde::ser::SerializeMap]
 #[derive(Debug, Clone, PartialEq)]
-pub enum Map {
+pub enum Map<X> {
     /// [serde::ser::SerializeMap::serialize_key]
     Key {
         /// key
-        key: Box<Ast>,
+        key: Box<XAst<X>>,
     },
     /// [serde::ser::SerializeMap::serialize_value]
     Value {
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
 }
 
 /// [serde::ser::SerializeStruct]
 #[derive(Debug, Clone, PartialEq)]
-pub enum Struct {
+pub enum Struct<X> {
     /// [serde::ser::SerializeStruct::serialize_field]
     Field {
         /// key
         key: &'static str,
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
     /// [serde::ser::SerializeStruct::skip_field]
     Skip {
@@ -351,13 +369,13 @@ pub enum Struct {
 
 /// [serde::ser::SerializeStructVariant]
 #[derive(Debug, Clone, PartialEq)]
-pub enum StructVariant {
+pub enum StructVariant<X> {
     /// [serde::ser::SerializeStructVariant::serialize_field]
     Field {
         /// key
         key: &'static str,
         /// value
-        value: Box<Ast>,
+        value: Box<XAst<X>>,
     },
     /// [serde::ser::SerializeStructVariant::skip_field]
     Skip {
