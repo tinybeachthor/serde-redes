@@ -30,7 +30,7 @@ Struct {
 }
 ```
 
-Serializing the [Ast] is equivalent to directly serializing the original value.
+Serializing the `Ast` is equivalent to directly serializing the original value.
 
 ```rust
 // serialize the ast
