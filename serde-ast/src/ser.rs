@@ -2,7 +2,10 @@
 
 use std::fmt::Display;
 
-use crate::{ast::{self, Final}, to_ast, Ast};
+use crate::{
+    ast::{self, Final},
+    to_ast, Ast,
+};
 
 /// [serde::Serializer::Error] for [Serializer]
 #[derive(Debug, thiserror::Error)]

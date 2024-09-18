@@ -1,10 +1,12 @@
 [workspace]
-members = [
-  "serde-ast",
-]
+members = ["serde-ast"]
 resolver = "2"
 
+[workspace.metadata.crane]
+name = "serde-redes-workspace"
+
 [workspace.package]
+version = "0.0.0"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/tinybeachthor/serde-redes"
 homepage = "https://github.com/tinybeachthor/serde-redes"

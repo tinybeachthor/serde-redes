@@ -4,13 +4,17 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     rust-overlay.url = "github:oxalica/rust-overlay";
     crane.url = "github:ipetkov/crane";
+
+    advisory-db = {
+      url = "github:rustsec/advisory-db";
+      flake = false;
+    };
   };
 
-  outputs = inputs@{ flake-parts, ... }:
+  outputs = inputs@{ self, flake-parts, advisory-db, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
-      perSystem = { system, pkgs, my-rust, ... }: {
-        _module.args = {
+      perSystem = { system, ... }: let
           pkgs = import inputs.nixpkgs {
             inherit system;
             overlays = [
@@ -22,9 +26,7 @@
               "rust-src"
             ];
           };
-        };
 
-        packages = let
           craneLib = (inputs.crane.mkLib pkgs).overrideToolchain (_: my-rust);
           src = craneLib.cleanCargoSource ./.;
 
@@ -33,37 +35,61 @@
             strictDeps = true;
             doCheck = false; # do not run tests during build
           };
-
           cargoArtifacts = craneLib.buildDepsOnly (commonArgs // {
             pname = "serde-redes-deps-only";
             version = "0.0.0";
           });
-
-          fileSetForCrate = crate: pkgs.lib.fileset.toSource {
-            root = ./.;
-            fileset = pkgs.lib.fileset.unions [
-              ./Cargo.toml
-              ./Cargo.lock
-              crate
-            ];
-          };
-
           individualCrateArgs = crate: commonArgs // rec {
             inherit (craneLib.crateNameFromCargoToml { src = crate; })
               pname version;
-            src = fileSetForCrate crate;
             cargoExtraArgs = "-p ${pname}";
-            inherit cargoArtifacts;
+            inherit src cargoArtifacts;
           };
 
-        in {
+      in {
+        packages = {
           serde-ast = craneLib.buildPackage (individualCrateArgs ./serde-ast);
+        };
+
+        checks = {
+          inherit (self.packages.${system}) serde-ast;
+
+          nextest = craneLib.cargoNextest (commonArgs // {
+            inherit cargoArtifacts;
+            partitions = 1;
+            partitionType = "count";
+          });
+
+          clippy = craneLib.cargoClippy (commonArgs // {
+            inherit cargoArtifacts;
+            cargoClippyExtraArgs = "--all-targets -- --deny warnings";
+          });
+          doc = craneLib.cargoDoc (commonArgs // {
+            inherit cargoArtifacts;
+          });
+
+          fmt = craneLib.cargoFmt {
+            inherit src;
+          };
+          fmt-toml = craneLib.taploFmt {
+            src = pkgs.lib.sources.sourceFilesBySuffices src [ ".toml" ];
+          };
+
+          audit = craneLib.cargoAudit {
+            inherit src advisory-db;
+          };
+          deny = craneLib.cargoDeny {
+            inherit src;
+          };
         };
 
         devShells.default = pkgs.mkShell {
           buildInputs = [
             pkgs.git
+
             my-rust
+            pkgs.taplo
+            pkgs.cargo-deny
           ];
         };
       };
