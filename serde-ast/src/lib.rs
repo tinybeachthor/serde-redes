@@ -10,8 +10,6 @@
 )]
 #![warn(unused, missing_docs)]
 
-//! # serde-ast
-//!
 //! Implements an [Ast] representation of [serde] serialization.
 //!
 //! This allows to see the serializattion calls made, inspect them, traverse or edit, or serialize with a [serde::Serializer].

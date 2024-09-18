@@ -5,9 +5,9 @@ edition = "2021"
 description = "An AST representation for serde serialization"
 categories = ["encoding"]
 keywords = ["serde", "serialization", "ast"]
-license.workspace = true
-repository.workspace = true
-homepage.workspace = true
+license = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
 
 [dependencies]
 serde = { workspace = true }

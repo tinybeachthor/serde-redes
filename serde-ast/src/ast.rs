@@ -1,5 +1,7 @@
 //! Define the [Ast] representation of [serde] serialization.
 
+use std::fmt::Display;
+
 use serde::{
     ser::{
         SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant, SerializeTuple,
@@ -149,6 +151,11 @@ pub enum Ast {
         /// [serde::ser::SerializeStructVariant] operations
         ops: Vec<StructVariant>,
     },
+}
+impl Display for Ast {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:#?}", self)
+    }
 }
 impl Serialize for Ast {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

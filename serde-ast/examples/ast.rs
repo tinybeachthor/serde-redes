@@ -22,5 +22,5 @@ fn main() {
 
     let ast = to_ast(&example).expect("serialize to_ast");
 
-    println!("{:?}", ast);
+    println!("{}", ast);
 }
