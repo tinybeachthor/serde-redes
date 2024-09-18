@@ -1,17 +1,15 @@
-pub mod ser;
 pub mod ast;
+pub mod ser;
 
 use serde::Serialize;
 
 pub use ast::Ast;
 pub use ser::Serializer;
 
-pub fn to_ast<T>(value: &T) -> Result<Vec<Ast>, ser::Error>
+pub fn to_ast<T>(value: &T) -> Result<Ast, ser::Error>
 where
     T: Serialize + ?Sized,
 {
-    let mut ops = Vec::new();
-    let serializer = Serializer::new(&mut ops);
-    value.serialize(serializer)?;
-    Ok(ops)
+    let serializer = Serializer::new();
+    value.serialize(serializer)
 }

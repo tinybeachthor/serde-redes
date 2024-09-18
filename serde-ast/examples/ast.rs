@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use serde_ast::to_ast;
 
@@ -17,10 +17,7 @@ struct Nested {
 fn main() {
     let example = Example {
         hello: "World".to_string(),
-        nested: Nested {
-            a: 100,
-            b: 42,
-        },
+        nested: Nested { a: 100, b: 42 },
     };
 
     let ast = to_ast(&example).expect("serialize to_ast");

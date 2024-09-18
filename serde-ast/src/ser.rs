@@ -4,120 +4,94 @@ use crate::{ast, to_ast, Ast};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("custom error")]
+    #[error("error")]
     Custom(String),
 }
 impl serde::ser::Error for Error {
     fn custom<T>(msg: T) -> Self
-        where T: Display
+    where
+        T: Display,
     {
         Self::Custom(msg.to_string())
     }
 }
 
-pub struct Serializer<'ast> {
-    ops: &'ast mut Vec<Ast>,
-}
-impl<'ast> Serializer<'ast> {
-    pub fn new(ops: &'ast mut Vec::<Ast>) -> Self {
-        Self {
-            ops,
-        }
+pub struct Serializer {}
+impl<'ast> Serializer {
+    pub fn new() -> Self {
+        Self {}
     }
 }
-impl<'ast> serde::Serializer for Serializer<'ast>{
-    type Ok = ();
+impl serde::Serializer for Serializer {
+    type Ok = Ast;
     type Error = Error;
 
-    type SerializeSeq = SerializeSeq::<'ast>;
-    type SerializeTuple = SerializeTuple::<'ast>;
-    type SerializeTupleStruct = SerializeTupleStruct::<'ast>;
-    type SerializeTupleVariant = SerializeTupleVariant::<'ast>;
-    type SerializeMap = SerializeMap::<'ast>;
-    type SerializeStruct = SerializeStruct::<'ast>;
-    type SerializeStructVariant = SerializeStructVariant::<'ast>;
+    type SerializeSeq = SerializeSeq;
+    type SerializeTuple = SerializeTuple;
+    type SerializeTupleStruct = SerializeTupleStruct;
+    type SerializeTupleVariant = SerializeTupleVariant;
+    type SerializeMap = SerializeMap;
+    type SerializeStruct = SerializeStruct;
+    type SerializeStructVariant = SerializeStructVariant;
 
     fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::Bool(v));
-        Ok(())
+        Ok(Ast::Bool(v))
     }
-
     fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::I8(v));
-        Ok(())
+        Ok(Ast::I8(v))
     }
     fn serialize_i16(self, v: i16) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::I16(v));
-        Ok(())
+        Ok(Ast::I16(v))
     }
     fn serialize_i32(self, v: i32) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::I32(v));
-        Ok(())
+        Ok(Ast::I32(v))
     }
     fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::I64(v));
-        Ok(())
+        Ok(Ast::I64(v))
     }
-
     fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::U8(v));
-        Ok(())
+        Ok(Ast::U8(v))
     }
     fn serialize_u16(self, v: u16) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::U16(v));
-        Ok(())
+        Ok(Ast::U16(v))
     }
     fn serialize_u32(self, v: u32) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::U32(v));
-        Ok(())
+        Ok(Ast::U32(v))
     }
-
     fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::U64(v));
-        Ok(())
+        Ok(Ast::U64(v))
     }
-
     fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::F32(v));
-        Ok(())
+        Ok(Ast::F32(v))
     }
     fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::F64(v));
-        Ok(())
+        Ok(Ast::F64(v))
     }
-
     fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::Char(v));
-        Ok(())
+        Ok(Ast::Char(v))
     }
     fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::Str(v.to_owned()));
-        Ok(())
+        Ok(Ast::Str(v.to_owned()))
     }
     fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::Bytes(v.to_owned()));
-        Ok(())
+        Ok(Ast::Bytes(v.to_owned()))
     }
 
     fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::None);
-        Ok(())
+        Ok(Ast::None)
     }
     fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
-        self.ops.push(Ast::Some(to_ast(value)?));
-        Ok(())
+        Ok(Ast::Some(Box::new(to_ast(value)?)))
     }
 
     fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::Unit);
-        Ok(())
+        Ok(Ast::Unit)
     }
     fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::UnitStruct(name.to_owned()));
-        Ok(())
+        Ok(Ast::UnitStruct(name))
     }
     fn serialize_unit_variant(
         self,
@@ -125,12 +99,11 @@ impl<'ast> serde::Serializer for Serializer<'ast>{
         variant_index: u32,
         variant: &'static str,
     ) -> Result<Self::Ok, Self::Error> {
-        self.ops.push(Ast::UnitVariant {
-            name: name.to_owned(),
+        Ok(Ast::UnitVariant {
+            name,
             variant_index,
-            variant: variant.to_owned(),
-        });
-        Ok(())
+            variant,
+        })
     }
 
     fn serialize_newtype_struct<T>(
@@ -139,13 +112,12 @@ impl<'ast> serde::Serializer for Serializer<'ast>{
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
-        self.ops.push(Ast::NewtypeStruct {
-            name: name.to_owned(),
-            value: to_ast(value)?,
-        });
-        Ok(())
+        Ok(Ast::NewtypeStruct {
+            name,
+            value: Box::new(to_ast(value)?),
+        })
     }
     fn serialize_newtype_variant<T>(
         self,
@@ -155,40 +127,29 @@ impl<'ast> serde::Serializer for Serializer<'ast>{
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
-        self.ops.push(Ast::NewtypeVariant {
-            name: name.to_owned(),
+        Ok(Ast::NewtypeVariant {
+            name,
             variant_index,
-            variant: variant.to_owned(),
-            value: to_ast(value)?,
-        });
-        Ok(())
+            variant,
+            value: Box::new(to_ast(value)?),
+        })
     }
 
     fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Ok(SerializeSeq::new(
-            self,
-            len,
-        ))
+        Ok(SerializeSeq::new(len))
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
-        Ok(SerializeTuple::new(
-            self,
-            len,
-        ))
+        Ok(SerializeTuple::new(len))
     }
     fn serialize_tuple_struct(
         self,
         name: &'static str,
         len: usize,
     ) -> Result<Self::SerializeTupleStruct, Self::Error> {
-        Ok(SerializeTupleStruct::new(
-            self,
-            name.to_owned(),
-            len,
-        ))
+        Ok(SerializeTupleStruct::new(name, len))
     }
     fn serialize_tuple_variant(
         self,
@@ -198,19 +159,15 @@ impl<'ast> serde::Serializer for Serializer<'ast>{
         len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
         Ok(SerializeTupleVariant::new(
-            self,
-            name.to_owned(),
+            name,
             variant_index,
-            variant.to_owned(),
+            variant,
             len,
         ))
     }
 
     fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        Ok(SerializeMap::new(
-            self,
-            len,
-        ))
+        Ok(SerializeMap::new(len))
     }
 
     fn serialize_struct(
@@ -218,11 +175,7 @@ impl<'ast> serde::Serializer for Serializer<'ast>{
         name: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
-        Ok(SerializeStruct::new(
-            self,
-            name,
-            len,
-        ))
+        Ok(SerializeStruct::new(name, len))
     }
     fn serialize_struct_variant(
         self,
@@ -232,7 +185,6 @@ impl<'ast> serde::Serializer for Serializer<'ast>{
         len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
         Ok(SerializeStructVariant::new(
-            self,
             name,
             variant_index,
             variant,
@@ -240,119 +192,93 @@ impl<'ast> serde::Serializer for Serializer<'ast>{
         ))
     }
 }
-pub struct SerializeTuple<'ast> {
-    s: Serializer::<'ast>,
+pub struct SerializeTuple {
     len: usize,
     inner_ops: Vec<ast::Tuple>,
 }
-impl<'ast> SerializeTuple<'ast> {
-    pub fn new(
-        s: Serializer::<'ast>,
-        len: usize,
-    ) -> Self {
+impl SerializeTuple {
+    pub fn new(len: usize) -> Self {
         Self {
-            s,
             len,
             inner_ops: Vec::new(),
         }
     }
 }
-impl<'ast> serde::ser::SerializeTuple for SerializeTuple<'ast> {
-    type Ok = ();
+impl serde::ser::SerializeTuple for SerializeTuple {
+    type Ok = Ast;
     type Error = Error;
 
     fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
         self.inner_ops.push(ast::Tuple::Element {
-            value: to_ast(value)?,
+            value: Box::new(to_ast(value)?),
         });
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        let Self {
-            s,
-            len,
-            inner_ops,
-         } = self;
+        let Self { len, inner_ops } = self;
 
-        s.ops.push(Ast::Tuple {
+        Ok(Ast::Tuple {
             len,
             ops: inner_ops,
-        });
-        Ok(())
+        })
     }
 }
-pub struct SerializeTupleStruct<'ast> {
-    s: Serializer::<'ast>,
-    name: String,
+pub struct SerializeTupleStruct {
+    name: &'static str,
     len: usize,
     inner_ops: Vec<ast::TupleStruct>,
 }
-impl<'ast> SerializeTupleStruct<'ast> {
-    pub fn new(
-        s: Serializer::<'ast>,
-        name: String,
-        len: usize,
-    ) -> Self {
+impl SerializeTupleStruct {
+    pub fn new(name: &'static str, len: usize) -> Self {
         Self {
-            s,
             name,
             len,
             inner_ops: Vec::new(),
         }
     }
 }
-impl<'ast> serde::ser::SerializeTupleStruct for SerializeTupleStruct<'ast> {
-    type Ok = ();
+impl serde::ser::SerializeTupleStruct for SerializeTupleStruct {
+    type Ok = Ast;
     type Error = Error;
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
         let Self {
-            s,
             name,
             len,
             inner_ops,
-         } = self;
+        } = self;
 
-        s.ops.push(Ast::TupleStruct {
+        Ok(Ast::TupleStruct {
             name,
             len,
             ops: inner_ops,
-        });
-        Ok(())
+        })
     }
 
     fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
         self.inner_ops.push(ast::TupleStruct::Field {
-            value: to_ast(value)?,
+            value: Box::new(to_ast(value)?),
         });
         Ok(())
     }
 }
-pub struct SerializeTupleVariant<'ast> {
-    s: Serializer::<'ast>,
-    name: String,
+pub struct SerializeTupleVariant {
+    name: &'static str,
     variant_index: u32,
-    variant: String,
+    variant: &'static str,
     len: usize,
     inner_ops: Vec<ast::TupleVariant>,
 }
-impl<'ast> SerializeTupleVariant<'ast> {
-    pub fn new(
-        s: Serializer::<'ast>,
-        name: String,
-        variant_index: u32,
-        variant: String,
-        len: usize,
-    ) -> Self {
+impl SerializeTupleVariant {
+    pub fn new(name: &'static str, variant_index: u32, variant: &'static str, len: usize) -> Self {
         Self {
-            s,
             name,
             variant_index,
             variant,
@@ -361,266 +287,222 @@ impl<'ast> SerializeTupleVariant<'ast> {
         }
     }
 }
-impl<'ast> serde::ser::SerializeTupleVariant for SerializeTupleVariant<'ast> {
-    type Ok = ();
+impl serde::ser::SerializeTupleVariant for SerializeTupleVariant {
+    type Ok = Ast;
     type Error = Error;
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
         let Self {
-            s,
             name,
             variant_index,
             variant,
             len,
             inner_ops,
-         } = self;
+        } = self;
 
-        s.ops.push(Ast::TupleVariant {
+        Ok(Ast::TupleVariant {
             name,
             variant_index,
             variant,
             len,
             ops: inner_ops,
-        });
-        Ok(())
+        })
     }
 
     fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
         self.inner_ops.push(ast::TupleVariant::Field {
-            value: to_ast(value)?,
+            value: Box::new(to_ast(value)?),
         });
         Ok(())
     }
 }
 
-pub struct SerializeSeq<'ast> {
-    s: Serializer::<'ast>,
+pub struct SerializeSeq {
     len: Option<usize>,
     inner_ops: Vec<ast::Seq>,
 }
-impl<'ast> SerializeSeq<'ast> {
-    pub fn new(
-        s: Serializer::<'ast>,
-        len: Option<usize>,
-    ) -> Self {
+impl SerializeSeq {
+    pub fn new(len: Option<usize>) -> Self {
         Self {
-            s,
             len,
             inner_ops: Vec::new(),
         }
     }
 }
-impl<'ast> serde::ser::SerializeSeq for SerializeSeq<'ast> {
-    type Ok = ();
+impl serde::ser::SerializeSeq for SerializeSeq {
+    type Ok = Ast;
     type Error = Error;
 
     fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
         self.inner_ops.push(ast::Seq::Element {
-            value: to_ast(value)?,
+            value: Box::new(to_ast(value)?),
         });
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        let Self {
-            s,
-            len,
-            inner_ops,
-         } = self;
+        let Self { len, inner_ops } = self;
 
-        s.ops.push(Ast::Seq {
+        Ok(Ast::Seq {
             len,
             ops: inner_ops,
-        });
-        Ok(())
+        })
     }
 }
 
-pub struct SerializeMap<'ast> {
-    s: Serializer::<'ast>,
+pub struct SerializeMap {
     len: Option<usize>,
     inner_ops: Vec<ast::Map>,
 }
-impl<'ast> SerializeMap<'ast> {
-    pub fn new(
-        s: Serializer::<'ast>,
-        len: Option<usize>,
-    ) -> Self {
+impl SerializeMap {
+    pub fn new(len: Option<usize>) -> Self {
         Self {
-            s,
             len,
             inner_ops: Vec::new(),
         }
     }
 }
-impl<'ast> serde::ser::SerializeMap for SerializeMap<'ast> {
-    type Ok = ();
+impl serde::ser::SerializeMap for SerializeMap {
+    type Ok = Ast;
     type Error = Error;
 
     fn serialize_key<T>(&mut self, key: &T) -> Result<(), Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
         self.inner_ops.push(ast::Map::Key {
-            key: to_ast(key)?,
+            key: Box::new(to_ast(key)?),
         });
         Ok(())
     }
     fn serialize_value<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
         self.inner_ops.push(ast::Map::Value {
-            value: to_ast(value)?,
+            value: Box::new(to_ast(value)?),
         });
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        let Self {
-            s,
-            len,
-            inner_ops,
-         } = self;
+        let Self { len, inner_ops } = self;
 
-        s.ops.push(Ast::Map {
+        Ok(Ast::Map {
             len,
             ops: inner_ops,
-        });
-        Ok(())
+        })
     }
 }
 
-pub struct SerializeStruct<'ast> {
-    s: Serializer::<'ast>,
-    name: String,
+pub struct SerializeStruct {
+    name: &'static str,
     len: usize,
     inner_ops: Vec<ast::Struct>,
 }
-impl<'ast> SerializeStruct<'ast> {
-    pub fn new(
-        s: Serializer::<'ast>,
-        name: &str,
-        len: usize,
-    ) -> Self {
+impl SerializeStruct {
+    pub fn new(name: &'static str, len: usize) -> Self {
         Self {
-            s,
-            name: name.to_owned(),
+            name,
             len,
             inner_ops: Vec::new(),
         }
     }
 }
-impl<'ast> serde::ser::SerializeStruct for SerializeStruct<'ast> {
-    type Ok = ();
+impl serde::ser::SerializeStruct for SerializeStruct {
+    type Ok = Ast;
     type Error = Error;
 
     fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
         self.inner_ops.push(ast::Struct::Field {
-            key: key.to_owned(),
-            value: to_ast(value)?,
+            key,
+            value: Box::new(to_ast(value)?),
         });
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
         let Self {
-            s,
             name,
             len,
             inner_ops,
-         } = self;
+        } = self;
 
-        s.ops.push(Ast::Struct {
+        Ok(Ast::Struct {
             name,
             len,
             ops: inner_ops,
-        });
-        Ok(())
+        })
     }
 
     fn skip_field(&mut self, key: &'static str) -> Result<(), Self::Error> {
-        self.inner_ops.push(ast::Struct::Skip {
-            key: key.to_owned(),
-        });
+        self.inner_ops.push(ast::Struct::Skip { key });
         Ok(())
     }
 }
 
-pub struct SerializeStructVariant<'ast> {
-    s: Serializer::<'ast>,
-    name: String,
+pub struct SerializeStructVariant {
+    name: &'static str,
     variant_index: u32,
-    variant: String,
+    variant: &'static str,
     len: usize,
     inner_ops: Vec<ast::StructVariant>,
 }
-impl<'ast> SerializeStructVariant<'ast> {
-    pub fn new(
-        s: Serializer::<'ast>,
-        name: &str,
-        variant_index: u32,
-        variant: &str,
-        len: usize,
-    ) -> Self {
+impl SerializeStructVariant {
+    pub fn new(name: &'static str, variant_index: u32, variant: &'static str, len: usize) -> Self {
         Self {
-            s,
-            name: name.to_owned(),
+            name,
             variant_index,
-            variant: variant.to_owned(),
+            variant,
             len,
             inner_ops: Vec::new(),
         }
     }
 }
-impl<'ast> serde::ser::SerializeStructVariant for SerializeStructVariant<'ast> {
-    type Ok = ();
+impl serde::ser::SerializeStructVariant for SerializeStructVariant {
+    type Ok = Ast;
     type Error = Error;
 
     fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: ?Sized + serde::Serialize
+        T: ?Sized + serde::Serialize,
     {
         self.inner_ops.push(ast::StructVariant::Field {
-            key: key.to_owned(),
-            value: to_ast(value)?,
+            key,
+            value: Box::new(to_ast(value)?),
         });
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
         let Self {
-            s,
             name,
             variant_index,
             variant,
             len,
             inner_ops,
-         } = self;
+        } = self;
 
-        s.ops.push(Ast::StructVariant {
+        Ok(Ast::StructVariant {
             name,
             variant_index,
             variant,
             len,
             ops: inner_ops,
-        });
-        Ok(())
+        })
     }
 
     fn skip_field(&mut self, key: &'static str) -> Result<(), Self::Error> {
-        self.inner_ops.push(ast::StructVariant::Skip {
-            key: key.to_owned(),
-        });
+        self.inner_ops.push(ast::StructVariant::Skip { key });
         Ok(())
     }
 }
