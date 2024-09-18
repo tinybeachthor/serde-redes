@@ -15,6 +15,32 @@
 //! This allows to see the serializattion calls made, inspect them, traverse or edit, or serialize with a [serde::Serializer].
 //!
 //! Serializing the [Ast] is equivalent to directly serializing the original value.
+//!
+//! ```
+//! # use serde::{Deserialize, Serialize};
+//! # use serde_ast::to_ast;
+//! #[derive(Serialize, Deserialize)]
+//! struct Example {
+//!     hello: String,
+//! }
+//! let example = Example { hello: "World".to_string() };
+//! let ast = to_ast(&example).expect("serialize to_ast");
+//! println!("{}", ast);
+//! ```
+//! ```text
+//! Struct {
+//!     name: "Example",
+//!     len: 1,
+//!     ops: [
+//!         Field {
+//!             key: "hello",
+//!             value: Str(
+//!                 "World",
+//!             ),
+//!         },
+//!     ],
+//! }
+//! ```
 
 pub mod ast;
 pub mod ser;
