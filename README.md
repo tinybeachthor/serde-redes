@@ -1,5 +1,7 @@
 # serde-redes
 
+> `redes` is just a random anagram of `serde`
+
 This repo contains some arcane [serde](https://github.com/serde-rs/serde) uses.
 
 The ultimate goal is to allow ergonomically extending `serde`:
@@ -7,9 +9,10 @@ The ultimate goal is to allow ergonomically extending `serde`:
 - allow easily extending the existing serializers with extra features
 - add support for comments in `serde` output
 
-> `redes` is just a random anagram of `serde`
-
 ## [serde-ast](./serde-ast/)
+
+[![Crates.io Version](https://img.shields.io/crates/v/serde-ast)](https://crates.io/crates/serde-ast)
+[![docs.rs](https://img.shields.io/docsrs/serde-ast)](https://docs.rs/serde-ast/latest/serde_ast/)
 
 Define an AST representation of `serde` serialization.
 

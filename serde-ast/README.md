@@ -1,5 +1,8 @@
 # serde-ast
 
+[![Crates.io Version](https://img.shields.io/crates/v/serde-ast)](https://crates.io/crates/serde-ast)
+[![docs.rs](https://img.shields.io/docsrs/serde-ast)](https://docs.rs/serde-ast/latest/serde_ast/)
+
 Define an AST representation of `serde` serialization.
 
 ```rust
