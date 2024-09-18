@@ -4,6 +4,11 @@ members = [
 ]
 resolver = "2"
 
+[workspace.package]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/tinybeachthor/serde-redes"
+homepage = "https://github.com/tinybeachthor/serde-redes"
+
 [workspace.dependencies]
 serde = "1"
 serde_json = "1"
