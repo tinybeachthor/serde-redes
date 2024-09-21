@@ -49,6 +49,13 @@
       in {
         packages = {
           serde-ast = craneLib.buildPackage (individualCrateArgs ./serde-ast);
+
+          default = pkgs.symlinkJoin {
+            name = "serde-redes-all";
+            paths = with self.packages.${system}; [
+              serde-ast
+            ];
+          };
         };
 
         checks = {
