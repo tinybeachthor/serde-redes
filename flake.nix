@@ -33,7 +33,7 @@
           commonArgs = {
             inherit src;
             strictDeps = true;
-            doCheck = false; # do not run tests during build
+            doCheck = false; # do not run tests during build, use nextest check instead
           };
           cargoArtifacts = craneLib.buildDepsOnly (commonArgs // {
             pname = "serde-redes-deps-only";
@@ -49,11 +49,13 @@
       in {
         packages = {
           serde-ast = craneLib.buildPackage (individualCrateArgs ./serde-ast);
+          serde-redes = craneLib.buildPackage (individualCrateArgs ./serde-redes);
 
           default = pkgs.symlinkJoin {
             name = "serde-redes-all";
             paths = with self.packages.${system}; [
               serde-ast
+              serde-redes
             ];
           };
         };

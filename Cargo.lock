@@ -164,6 +164,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-redes"
+version = "0.1.0-alpha.1"
+
+[[package]]
 name = "serde_derive"
 version = "1.0.210"
 source = "registry+https://github.com/rust-lang/crates.io-index"
