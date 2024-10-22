@@ -49,19 +49,23 @@
       in {
         packages = {
           serde-ast = craneLib.buildPackage (individualCrateArgs ./serde-ast);
+          serde-metadata = craneLib.buildPackage (individualCrateArgs ./serde-metadata);
           serde-redes = craneLib.buildPackage (individualCrateArgs ./serde-redes);
 
           default = pkgs.symlinkJoin {
             name = "serde-redes-all";
             paths = with self.packages.${system}; [
               serde-ast
+              serde-metadata
               serde-redes
             ];
           };
+
+          deps = cargoArtifacts;
         };
 
         checks = {
-          inherit (self.packages.${system}) serde-ast;
+          build = self.packages.${system}.default;
 
           nextest = craneLib.cargoNextest (commonArgs // {
             inherit cargoArtifacts;
