@@ -3,6 +3,7 @@ use std::ops::Deref;
 use indexmap::IndexMap;
 use serde::Serialize;
 
+#[derive(Debug, Clone, PartialEq, Default, Serialize)]
 pub struct Metadata {
     items: IndexMap<String, String>,
 }
