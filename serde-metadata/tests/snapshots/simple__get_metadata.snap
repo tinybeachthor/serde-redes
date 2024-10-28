@@ -1,0 +1,5 @@
+---
+source: serde-metadata/tests/simple.rs
+expression: "serde_json::to_string(&metadata).unwrap()"
+---
+{"a":{"items":{"comment":"field: a"}},"b":{"items":{"comment":"field: b"}}}

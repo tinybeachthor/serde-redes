@@ -103,6 +103,7 @@
             my-rust
             pkgs.taplo
             pkgs.cargo-deny
+            pkgs.cargo-insta
           ];
         };
       };

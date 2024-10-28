@@ -1,3 +1,4 @@
+use indexmap::indexmap;
 use serde::Serialize;
 use serde_metadata::{Metadata, SerdeMetadata};
 
@@ -15,8 +16,12 @@ pub struct SimpleMetadata {
 impl Default for SimpleMetadata {
     fn default() -> Self {
         Self {
-            a: Default::default(),
-            b: Default::default(),
+            a: Metadata::from(indexmap! {
+                "comment".to_string() => "field: a".to_string(),
+            }),
+            b: Metadata::from(indexmap! {
+                "comment".to_string() => "field: b".to_string(),
+            }),
         }
     }
 }
@@ -27,4 +32,11 @@ impl SerdeMetadata for Simple {
 
 #[test]
 fn get_metadata() {
+    let simple = Simple {
+        a: "hello".to_string(),
+        b: 42,
+    };
+    let metadata = simple.get_metadata();
+
+    insta::assert_snapshot!(serde_json::to_string(&metadata).unwrap());
 }
