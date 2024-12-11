@@ -1,5 +1,5 @@
 [workspace]
-members = ["serde-ast", "serde-metadata", "serde-metadata-derive", "serde-redes"]
+members = ["serde-ast", "serde-with-extras"]
 resolver = "2"
 
 [workspace.metadata.crane]

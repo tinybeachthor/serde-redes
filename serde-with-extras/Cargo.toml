@@ -1,5 +1,5 @@
 [package]
-name = "serde-metadata"
+name = "serde-with-extras"
 version = "0.1.0-alpha.1"
 edition = { workspace = true }
 license = { workspace = true }
@@ -7,9 +7,5 @@ repository = { workspace = true }
 homepage = { workspace = true }
 
 [dependencies]
-indexmap = { workspace = true, features = ["serde"] }
 serde = { workspace = true, features = ["derive"] }
-
-[dev-dependencies]
-insta = { workspace = true }
-serde_json = { workspace = true }
+indexmap = { workspace = true, features = ["serde"] }
