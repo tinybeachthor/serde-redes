@@ -9,3 +9,7 @@ homepage = { workspace = true }
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
 indexmap = { workspace = true, features = ["serde"] }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+insta = { workspace = true }

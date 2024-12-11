@@ -1,0 +1,5 @@
+---
+source: serde-with-extras/tests/serialize.rs
+expression: data
+---
+{"inner":"string","extras":{}}
