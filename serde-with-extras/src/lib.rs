@@ -7,7 +7,7 @@ use serde::Serialize;
 pub use indexmap::indexmap as extras;
 
 pub const EXTRAS_COMMENT_BEFORE: &str = "comment";
-pub const EXTRAS_COMMENT_AFTER:  &str = "comment-after";
+pub const EXTRAS_COMMENT_AFTER: &str = "comment-after";
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Extras<T>
@@ -23,9 +23,6 @@ where
 {
     /// Construct new [Extras] from `inner` value and `extras`.
     pub fn new(inner: T, extras: IndexMap<&'static str, String>) -> Self {
-        Self {
-            inner,
-            extras,
-        }
+        Self { inner, extras }
     }
 }
