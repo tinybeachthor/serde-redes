@@ -1,28 +1,43 @@
-use std::fmt::Debug;
-
 use indexmap::IndexMap;
-use serde::Serialize;
+use serde::{ser::SerializeTupleStruct, Serialize};
 
 // re-export indexmap macro to construct attributes
 pub use indexmap::indexmap as extras;
 
+pub const SERDE_EXTRAS_WELLKNOWN_NAME: &str = "__SERDE_EXTRAS_/_EXTRAS";
+
 pub const EXTRAS_COMMENT_BEFORE: &str = "comment";
 pub const EXTRAS_COMMENT_AFTER: &str = "comment-after";
 
-#[derive(Debug, Clone, Serialize)]
-pub struct Extras<T>
-where
-    T: Debug + Clone + Serialize,
-{
+pub struct Extras<T> {
     inner: T,
     extras: IndexMap<&'static str, String>,
 }
-impl<T> Extras<T>
-where
-    T: Debug + Clone + Serialize,
-{
+
+impl<T> Extras<T> {
     /// Construct new [Extras] from `inner` value and `extras`.
     pub fn new(inner: T, extras: IndexMap<&'static str, String>) -> Self {
         Self { inner, extras }
+    }
+}
+
+impl<T: Serialize> Serialize for Extras<T> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut ts = serializer.serialize_tuple_struct(SERDE_EXTRAS_WELLKNOWN_NAME, 2)?;
+        ts.serialize_field(&self.inner)?;
+        ts.serialize_field(&self.extras)?;
+        ts.end()
+    }
+}
+
+impl<T: Clone> Clone for Extras<T> {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+            extras: self.extras.clone(),
+        }
     }
 }
