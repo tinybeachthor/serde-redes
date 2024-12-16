@@ -1,0 +1,23 @@
+---
+source: serde-with-extras/tests/to_ast.rs
+expression: data
+---
+TupleStruct {
+    name: "__SERDE_EXTRAS__EXTRAS",
+    len: 2,
+    ops: [
+        Field {
+            value: Str(
+                "string",
+            ),
+        },
+        Field {
+            value: Map {
+                len: Some(
+                    0,
+                ),
+                ops: [],
+            },
+        },
+    ],
+}

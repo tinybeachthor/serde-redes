@@ -1,0 +1,44 @@
+---
+source: serde-with-extras/tests/to_ast.rs
+expression: data
+---
+TupleStruct {
+    name: "__SERDE_EXTRAS__EXTRAS",
+    len: 2,
+    ops: [
+        Field {
+            value: Str(
+                "string",
+            ),
+        },
+        Field {
+            value: Map {
+                len: Some(
+                    2,
+                ),
+                ops: [
+                    Key {
+                        key: Str(
+                            "comment",
+                        ),
+                    },
+                    Value {
+                        value: Str(
+                            "Hello",
+                        ),
+                    },
+                    Key {
+                        key: Str(
+                            "comment-after",
+                        ),
+                    },
+                    Value {
+                        value: Str(
+                            "Goodbye",
+                        ),
+                    },
+                ],
+            },
+        },
+    ],
+}
