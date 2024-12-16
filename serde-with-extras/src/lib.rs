@@ -1,10 +1,12 @@
+use std::fmt::Debug;
+
 use indexmap::IndexMap;
 use serde::{ser::SerializeTupleStruct, Serialize};
 
 // re-export indexmap macro to construct attributes
 pub use indexmap::indexmap as extras;
 
-pub const SERDE_EXTRAS_WELLKNOWN_NAME: &str = "__SERDE_EXTRAS_/_EXTRAS";
+pub const SERDE_EXTRAS_WELLKNOWN_NAME: &str = "__SERDE_EXTRAS__EXTRAS";
 
 pub const EXTRAS_COMMENT_BEFORE: &str = "comment";
 pub const EXTRAS_COMMENT_AFTER: &str = "comment-after";
@@ -30,6 +32,15 @@ impl<T: Serialize> Serialize for Extras<T> {
         ts.serialize_field(&self.inner)?;
         ts.serialize_field(&self.extras)?;
         ts.end()
+    }
+}
+
+impl<T: Debug> Debug for Extras<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Extras")
+            .field("inner", &self.inner)
+            .field("extras", &self.extras)
+            .finish()
     }
 }
 
