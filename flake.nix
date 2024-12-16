@@ -46,17 +46,17 @@
             inherit src cargoArtifacts;
           };
 
-      in {
-        packages = {
-          serde-ast = craneLib.buildPackage (individualCrateArgs ./serde-ast);
-
-          default = pkgs.symlinkJoin {
-            name = "serde-redes-all";
-            paths = with self.packages.${system}; [
-              serde-ast
-            ];
+          packages = {
+            serde-ast = craneLib.buildPackage (individualCrateArgs ./serde-ast);
+            serde-with-extras = craneLib.buildPackage (individualCrateArgs ./serde-with-extras);
           };
 
+      in {
+        packages = packages // {
+          default = pkgs.symlinkJoin {
+            name = "serde-redes-all";
+            paths = builtins.attrValues packages;
+          };
           deps = cargoArtifacts;
         };
 
@@ -68,7 +68,6 @@
             partitions = 1;
             partitionType = "count";
           });
-
           clippy = craneLib.cargoClippy (commonArgs // {
             inherit cargoArtifacts;
             cargoClippyExtraArgs = "--all-targets -- --deny warnings";
@@ -97,6 +96,7 @@
             pkgs.git
 
             my-rust
+
             pkgs.taplo
             pkgs.cargo-deny
             pkgs.cargo-insta
