@@ -1,0 +1,5 @@
+---
+source: serde-with-extras/tests/manual_impl.rs
+expression: data
+---
+{"basic":"basic","with_extras":["with_extras",{"comment":"Hello","comment-after":"Goodbye"}]}
