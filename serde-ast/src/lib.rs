@@ -59,12 +59,15 @@
 //! assert_eq!(output, direct);
 //! ```
 
+mod convert;
+
 pub mod ast;
 pub mod ser;
 
 use serde::Serialize;
 
-pub use ast::Ast;
+pub use ast::{Ast, XAst};
+pub use convert::into_extended;
 pub use ser::Serializer;
 
 /// Serialize a value into [Ast].
