@@ -1,6 +1,6 @@
 [package]
 name = "serde-ast"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 description = "An AST representation for serde serialization"
 readme = "README.md"
 categories = ["encoding"]

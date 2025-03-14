@@ -80,3 +80,14 @@ where
     let serializer = Serializer::new();
     value.serialize(serializer)
 }
+
+/// Serialize to extended [Ast] with custom [serde::Serializer].
+pub fn to_xast_with_serializer<T, X>(
+    value: &T,
+    serializer: impl serde::Serializer<Ok = XAst<X>, Error = ser::Error>,
+) -> Result<XAst<X>, ser::Error>
+where
+    T: Serialize + ?Sized,
+{
+    value.serialize(serializer)
+}
