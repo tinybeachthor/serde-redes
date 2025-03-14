@@ -6,6 +6,8 @@ use serde::{ser::SerializeTupleStruct, Serialize};
 // re-export indexmap macro to construct attributes
 pub use indexmap::indexmap as extras;
 
+pub mod ser;
+
 pub const SERDE_EXTRAS_WELLKNOWN_NAME: &str = "__SERDE_EXTRAS__EXTRAS";
 
 pub const EXTRAS_COMMENT_BEFORE: &str = "comment";
