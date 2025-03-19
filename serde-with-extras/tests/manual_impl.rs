@@ -14,14 +14,14 @@ impl Serialize for Example {
     {
         let mut s = serializer.serialize_struct("Example", 2)?;
         s.serialize_field("basic", &self.basic)?;
-        let with_extra = Extras::new(
+        let with_extras = Extras::new(
             &self.with_extras,
             extras!(
                 EXTRAS_COMMENT_BEFORE => String::from("Hello"),
                 EXTRAS_COMMENT_AFTER => String::from("Goodbye"),
             ),
         );
-        s.serialize_field("with_extras", &with_extra)?;
+        s.serialize_field("with_extras", &with_extras)?;
         s.end()
     }
 }
