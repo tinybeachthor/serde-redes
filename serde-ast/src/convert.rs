@@ -96,7 +96,7 @@ pub fn into_extended<T>(value: XAst<ast::Final>) -> XAst<T> {
             len,
             ops: ops.into_iter().map(into_extended_struct_variant).collect(),
         },
-        XAst::X(v) => match v {},
+        XAst::X(v, _) => match v {},
     }
 }
 

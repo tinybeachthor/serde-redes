@@ -162,7 +162,7 @@ pub enum XAst<X> {
     },
 
     /// Allow arbitrary extensions of this enum by injecting an extension type.
-    X(X),
+    X(X, Box<XAst<X>>),
 }
 
 impl<X> Display for XAst<X>
@@ -290,7 +290,7 @@ impl Serialize for XAst<Final> {
                 }
                 s.end()
             }
-            Self::X(never) => match *never {},
+            Self::X(never, _) => match *never {},
         }
     }
 }
