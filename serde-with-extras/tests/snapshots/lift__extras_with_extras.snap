@@ -1,0 +1,13 @@
+---
+source: serde-with-extras/tests/lift.rs
+expression: data
+---
+X(
+    {
+        "comment": "Hello",
+        "comment-after": "Goodbye",
+    },
+    Str(
+        "string",
+    ),
+)

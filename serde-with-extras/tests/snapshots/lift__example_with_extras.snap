@@ -1,0 +1,28 @@
+---
+source: serde-with-extras/tests/lift.rs
+expression: data
+---
+Struct {
+    name: "Example",
+    len: 2,
+    ops: [
+        Field {
+            key: "basic",
+            value: Str(
+                "basic",
+            ),
+        },
+        Field {
+            key: "with_extras",
+            value: X(
+                {
+                    "comment": "Hello",
+                    "comment-after": "Goodbye",
+                },
+                Str(
+                    "with_extras",
+                ),
+            ),
+        },
+    ],
+}

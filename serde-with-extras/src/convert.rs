@@ -16,35 +16,32 @@ pub enum Error {
 }
 
 pub fn lift(ast: Ast) -> Result<XAst<ExtrasAttributes>, Error> {
+    println!("{:?}", ast);
+
     Ok(match ast {
-        XAst::TupleVariant {
-            name,
-            variant_index,
-            variant,
-            len,
-            ops,
-        } => {
+        XAst::TupleStruct { name, len, ops } => {
             if name == super::SERDE_EXTRAS_WELLKNOWN_NAME {
-                let TupleVariant::Field { value: inner } =
-                    ops.get(0).ok_or(Error::ExtrasMissingField)?;
-                let TupleVariant::Field { value: extras } =
+                let TupleStruct::Field { value: inner } =
+                    ops.first().ok_or(Error::ExtrasMissingField)?;
+                let TupleStruct::Field { value: extras } =
                     ops.get(1).ok_or(Error::ExtrasMissingField)?;
 
                 let XAst::Str(extras_serialized) = extras.as_ref() else {
                     return Err(Error::ExtrasAttributesWrongFormat);
                 };
 
-                let extras: ExtrasAttributes = serde_json::from_str(&extras_serialized)
+                let extras: ExtrasAttributes = serde_json::from_str(extras_serialized)
                     .map_err(Error::DeserializeExtrasAttributes)?;
 
                 XAst::X(extras, Box::new(lift(inner.as_ref().clone())?))
             } else {
-                XAst::TupleVariant {
+                XAst::TupleStruct {
                     name,
-                    variant_index,
-                    variant,
                     len,
-                    ops: ops.into_iter().map(lift_tuple_variant).collect::<Result<Vec<_>, Error>>()?,
+                    ops: ops
+                        .into_iter()
+                        .map(lift_tuple_struct)
+                        .collect::<Result<Vec<_>, Error>>()?,
                 }
             }
         }
@@ -69,25 +66,48 @@ pub fn lift(ast: Ast) -> Result<XAst<ExtrasAttributes>, Error> {
         },
         XAst::Seq { len, ops } => XAst::Seq {
             len,
-            ops: ops.into_iter().map(lift_seq).collect::<Result<Vec<_>, Error>>()?,
+            ops: ops
+                .into_iter()
+                .map(lift_seq)
+                .collect::<Result<Vec<_>, Error>>()?,
         },
         XAst::Tuple { len, ops } => XAst::Tuple {
             len,
-            ops: ops.into_iter().map(lift_tuple).collect::<Result<Vec<_>, Error>>()?,
+            ops: ops
+                .into_iter()
+                .map(lift_tuple)
+                .collect::<Result<Vec<_>, Error>>()?,
         },
-        XAst::TupleStruct { name, len, ops } => XAst::TupleStruct {
+        XAst::TupleVariant {
             name,
+            variant_index,
+            variant,
             len,
-            ops: ops.into_iter().map(lift_tuple_struct).collect::<Result<Vec<_>, Error>>()?,
+            ops,
+        } => XAst::TupleVariant {
+            name,
+            variant_index,
+            variant,
+            len,
+            ops: ops
+                .into_iter()
+                .map(lift_tuple_variant)
+                .collect::<Result<Vec<_>, Error>>()?,
         },
         XAst::Map { len, ops } => XAst::Map {
             len,
-            ops: ops.into_iter().map(lift_map).collect::<Result<Vec<_>, Error>>()?,
+            ops: ops
+                .into_iter()
+                .map(lift_map)
+                .collect::<Result<Vec<_>, Error>>()?,
         },
         XAst::Struct { name, len, ops } => XAst::Struct {
             name,
             len,
-            ops: ops.into_iter().map(lift_struct).collect::<Result<Vec<_>, Error>>()?,
+            ops: ops
+                .into_iter()
+                .map(lift_struct)
+                .collect::<Result<Vec<_>, Error>>()?,
         },
         XAst::StructVariant {
             name,
@@ -100,7 +120,10 @@ pub fn lift(ast: Ast) -> Result<XAst<ExtrasAttributes>, Error> {
             variant_index,
             variant,
             len,
-            ops: ops.into_iter().map(lift_struct_variant).collect::<Result<Vec<_>, Error>>()?,
+            ops: ops
+                .into_iter()
+                .map(lift_struct_variant)
+                .collect::<Result<Vec<_>, Error>>()?,
         },
         _ => into_extended(ast),
     })

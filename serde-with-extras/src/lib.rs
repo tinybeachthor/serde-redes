@@ -8,8 +8,6 @@ use serde::{ser::SerializeTupleStruct, Serialize};
 // re-export indexmap macro to construct attributes
 pub use indexmap::indexmap as extras;
 
-pub use convert::lift;
-
 pub const SERDE_EXTRAS_WELLKNOWN_NAME: &str = "__SERDE_EXTRAS__EXTRAS";
 
 pub const EXTRAS_COMMENT_BEFORE: &str = "comment";
@@ -56,4 +54,22 @@ impl<T: Clone> Clone for Extras<T> {
             extras: self.extras.clone(),
         }
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("Failed to serialize to Ast: {0}")]
+    ToAst(serde_ast::ser::Error),
+    #[error("Failed to convert Ast to Extras: {0}")]
+    LiftExtras(convert::Error),
+}
+
+/// Serialize a value into [XAst<ExtrasAttributes>].
+pub fn to_with_extras<T>(value: &T) -> Result<serde_ast::XAst<ExtrasAttributes>, Error>
+where
+    T: Serialize + ?Sized,
+{
+    let ast = serde_ast::to_ast(value).map_err(Error::ToAst)?;
+    let with_extras = convert::lift(ast).map_err(Error::LiftExtras)?;
+    Ok(with_extras)
 }

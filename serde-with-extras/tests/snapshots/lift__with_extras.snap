@@ -1,0 +1,35 @@
+---
+source: serde-with-extras/tests/lift.rs
+expression: data
+---
+Struct {
+    name: "Example",
+    len: 2,
+    ops: [
+        Field {
+            key: "basic",
+            value: Str(
+                "basic",
+            ),
+        },
+        Field {
+            key: "with_extras",
+            value: TupleStruct {
+                name: "__SERDE_EXTRAS__EXTRAS",
+                len: 2,
+                ops: [
+                    Field {
+                        value: Str(
+                            "with_extras",
+                        ),
+                    },
+                    Field {
+                        value: Str(
+                            "{\"comment\":\"Hello\",\"comment-after\":\"Goodbye\"}",
+                        ),
+                    },
+                ],
+            },
+        },
+    ],
+}
