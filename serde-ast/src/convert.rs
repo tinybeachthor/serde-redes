@@ -1,10 +1,10 @@
 use crate::{
-    ast::{self, Final, Map, Seq, Struct, StructVariant, Tuple, TupleStruct, TupleVariant},
-    XAst,
+    ast::{Final, Map, Seq, Struct, StructVariant, Tuple, TupleStruct, TupleVariant},
+    Ast, XAst,
 };
 
 /// Convert [XAst<Final>] into extended [XAst].
-pub fn into_extended<T>(value: XAst<ast::Final>) -> XAst<T> {
+pub fn into_extended<T>(value: Ast) -> XAst<T> {
     match value {
         XAst::Bool(v) => XAst::Bool(v),
         XAst::I8(v) => XAst::I8(v),

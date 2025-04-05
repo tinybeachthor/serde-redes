@@ -12,33 +12,9 @@ TupleStruct {
             ),
         },
         Field {
-            value: Map {
-                len: Some(
-                    2,
-                ),
-                ops: [
-                    Key {
-                        key: Str(
-                            "comment",
-                        ),
-                    },
-                    Value {
-                        value: Str(
-                            "Hello",
-                        ),
-                    },
-                    Key {
-                        key: Str(
-                            "comment-after",
-                        ),
-                    },
-                    Value {
-                        value: Str(
-                            "Goodbye",
-                        ),
-                    },
-                ],
-            },
+            value: Str(
+                "{\"comment\":\"Hello\",\"comment-after\":\"Goodbye\"}",
+            ),
         },
     ],
 }

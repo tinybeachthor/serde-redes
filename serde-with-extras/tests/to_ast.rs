@@ -15,8 +15,8 @@ fn extras_to_ast() {
     let extras = Extras::new(
         inner,
         extras!(
-            EXTRAS_COMMENT_BEFORE => String::from("Hello"),
-            EXTRAS_COMMENT_AFTER => String::from("Goodbye"),
+            EXTRAS_COMMENT_BEFORE.to_string() => String::from("Hello"),
+            EXTRAS_COMMENT_AFTER.to_string() => String::from("Goodbye"),
         ),
     );
 

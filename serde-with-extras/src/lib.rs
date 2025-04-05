@@ -1,3 +1,5 @@
+mod convert;
+
 use std::fmt::Debug;
 
 use indexmap::IndexMap;
@@ -6,18 +8,22 @@ use serde::{ser::SerializeTupleStruct, Serialize};
 // re-export indexmap macro to construct attributes
 pub use indexmap::indexmap as extras;
 
+pub use convert::lift;
+
 pub const SERDE_EXTRAS_WELLKNOWN_NAME: &str = "__SERDE_EXTRAS__EXTRAS";
 
 pub const EXTRAS_COMMENT_BEFORE: &str = "comment";
 pub const EXTRAS_COMMENT_AFTER: &str = "comment-after";
 
+pub type ExtrasAttributes = IndexMap<String, String>;
+
 pub struct Extras<T> {
     inner: T,
-    extras: IndexMap<&'static str, String>,
+    extras: ExtrasAttributes,
 }
 impl<T> Extras<T> {
     /// Construct new [Extras] from `inner` value and `extras`.
-    pub fn new(inner: T, extras: IndexMap<&'static str, String>) -> Self {
+    pub fn new(inner: T, extras: ExtrasAttributes) -> Self {
         Self { inner, extras }
     }
 }
@@ -26,9 +32,12 @@ impl<T: Serialize> Serialize for Extras<T> {
     where
         S: serde::Serializer,
     {
+        let extras_serialized =
+            serde_json::to_string(&self.extras).map_err(serde::ser::Error::custom)?;
+
         let mut ts = serializer.serialize_tuple_struct(SERDE_EXTRAS_WELLKNOWN_NAME, 2)?;
         ts.serialize_field(&self.inner)?;
-        ts.serialize_field(&self.extras)?;
+        ts.serialize_field(&extras_serialized)?;
         ts.end()
     }
 }

@@ -12,12 +12,9 @@ TupleStruct {
             ),
         },
         Field {
-            value: Map {
-                len: Some(
-                    0,
-                ),
-                ops: [],
-            },
+            value: Str(
+                "{}",
+            ),
         },
     ],
 }

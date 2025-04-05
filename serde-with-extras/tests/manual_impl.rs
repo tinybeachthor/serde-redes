@@ -17,8 +17,8 @@ impl Serialize for Example {
         let with_extras = Extras::new(
             &self.with_extras,
             extras!(
-                EXTRAS_COMMENT_BEFORE => String::from("Hello"),
-                EXTRAS_COMMENT_AFTER => String::from("Goodbye"),
+                EXTRAS_COMMENT_BEFORE.to_string() => String::from("Hello"),
+                EXTRAS_COMMENT_AFTER.to_string() => String::from("Goodbye"),
             ),
         );
         s.serialize_field("with_extras", &with_extras)?;

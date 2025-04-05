@@ -11,7 +11,9 @@ homepage = { workspace = true }
 serde-ast = { workspace = true }
 
 serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 indexmap = { workspace = true, features = ["serde"] }
+thiserror = { workspace = true }
 
 [dev-dependencies]
 
